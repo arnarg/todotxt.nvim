@@ -1,6 +1,6 @@
-local parser = {}
+local util = require('todotxt-nvim.parser.util')
 
-local date_format = "%d%d%d%d%-%d%d%-%d%d"
+local parser = {}
 
 local function trim_space(str)
 	-- Everywhere where there is more than 1 whitespace, replace with one
@@ -20,14 +20,14 @@ local function parse_done(str)
 end
 
 local function parse_pri(str)
-	local pri = string.match(str, "^%(([A-Z])%)%s+")
-	return pri, string.gsub(str, "^%([A-Z]%)%s+", "", 1)
+	local pri, l, r = util.parse_pri(str)
+	return pri, pri ~= nil and trim_space(string.sub(str, r+1)) or str
 end
 
 local function parse_date(str)
-	local cr = string.match(str, "^("..date_format..")%s+")
-	local date = cr ~= nil and parse_date_str(cr) or nil
-	return date, string.gsub(str, "^"..date_format.."%s+", "", 1)
+	local md, l, r = util.parse_date(str)
+	local date = md ~= nil and parse_date_str(md) or nil
+	return date, md ~= nil and trim_space(string.sub(str, r+1)) or str
 end
 
 local function parse_specials(str, symbol)

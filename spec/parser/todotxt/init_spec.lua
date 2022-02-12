@@ -1,4 +1,4 @@
-local parser = require('todotxt-nvim.todotxt.parser')
+local parser = require('todotxt-nvim.parser.todotxt')
 
 describe("Task parser", function()
 	describe("with only text", function()
