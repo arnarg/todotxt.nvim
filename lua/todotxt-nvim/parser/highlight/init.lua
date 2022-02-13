@@ -62,7 +62,25 @@ local function parse_tags(str, l, r)
 	return #tags > 0 and tags or nil
 end
 
-function parser.parse_task(str)
+local function parse_word_pri(str, pri, l, r)
+	local le = l
+	local ri = r
+	if type(pri) == "table" then
+		for p, patt in pairs(pri) do
+			local s = string.sub(str, le, ri)
+			local l, r = string.find(s, patt, l)
+			if l ~= nil and util.isolated(s, patt) then
+				return {
+					priority = p,
+					left = l,
+					right = r,
+				}
+			end
+		end
+	end
+end
+
+function parser.parse_task(str, pri_words)
 	local highlights = {}
 	local left = 1
 
@@ -80,6 +98,11 @@ function parser.parse_task(str)
 
 	-- Look for tags
 	highlights.tags = parse_tags(str, left)
+
+	-- Look for priority words
+	if pri_words ~= nil and highlights.priority == nil then
+		highlights.priority_word = parse_word_pri(str, pri_words, left)
+	end
 
 	return highlights
 end

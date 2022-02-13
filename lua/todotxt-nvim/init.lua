@@ -14,6 +14,7 @@ end
 
 function todotxt.add_task(cb)
 	local ns = vim.api.nvim_create_namespace("todo_txt")
+	local mark_id = 0
 	local last_start = 0
 	local last_stop = 0
 	local prompt = "> "
@@ -42,13 +43,20 @@ function todotxt.add_task(cb)
 		},
 	}
 
+	local priority_words = {
+		A = "now",
+		C = "today",
+		D = "this week",
+		E = "next week",
+	}
+
 	local input = Input(_popup_options, {
 		prompt = prompt,
 		on_submit = function(val)
 			local highlights = hi_parser.parse_task(val)
 		end,
 		on_change = function(val, b)
-			local highlights = hi_parser.parse_task(val)
+			local highlights = hi_parser.parse_task(val, priority_words)
 			local p_length = #prompt
 			-- Clear all highlights
 			vim.api.nvim_buf_clear_namespace(b, ns, 0, -1)
@@ -83,6 +91,31 @@ function todotxt.add_task(cb)
 					local right = p_length + context.right
 					vim.api.nvim_buf_add_highlight(b, ns, hi_group, 0, left-1, right)
 				end
+			end
+			-- Check priority word
+			if highlights.priority == nil and highlights.priority_word ~= nil then
+				local priority = highlights.priority_word.priority
+				local hi_group = "todo_txt_pri_"..string.lower(priority)
+				-- Set highlight
+				local left = p_length + highlights.priority_word.left
+				local right = p_length + highlights.priority_word.right
+				vim.api.nvim_buf_add_highlight(b, ns, hi_group, 0, left-1, right)
+				-- Set extmark
+				mopts = {
+					virt_text = {{priority, hi_group}},
+					virt_text_pos = "right_align",
+				}
+				if mark_id ~= 0 then
+					mopts.id = mark_id
+				end
+				_id = vim.api.nvim_buf_set_extmark(b, ns, 0, 0, mopts)
+				if mark_id == 0 then
+					mark_id = _id
+				end
+			elseif mark_id ~= 0 then
+				-- Delete extmark
+				vim.api.nvim_buf_del_extmark(b, ns, mark_id)
+				mark_id = 0
 			end
 		end,
 	})

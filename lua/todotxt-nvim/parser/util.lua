@@ -22,4 +22,13 @@ function util.parse_date(str, l, r)
 	return date, left or l, right or r
 end
 
+-- Checks that a word is either around either end of string
+-- or wrapped in whitespace
+function util.isolated(str, w)
+	local match = string.match
+	local prefix = match(str, "^" .. w) or match(str, "%s" .. w)
+	local suffix = match(str, w .. "$") or match(str, w .. "%s")
+	return prefix and suffix
+end
+
 return util
