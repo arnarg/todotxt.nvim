@@ -63,17 +63,15 @@ local function parse_tags(str, l, r)
 end
 
 local function parse_word_pri(str, pri, l, r)
-	local le = l
-	local ri = r
 	if type(pri) == "table" then
 		for p, patt in pairs(pri) do
-			local s = string.sub(str, le, ri)
-			local l, r = string.find(s, patt, l)
+			local le, ri = string.find(str, patt, l)
+			local s = string.sub(str, l, r)
 			if l ~= nil and util.isolated(s, patt) then
 				return {
 					priority = p,
-					left = l,
-					right = r,
+					left = le,
+					right = ri,
 				}
 			end
 		end

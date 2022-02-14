@@ -112,7 +112,7 @@ describe("Highlight parser", function()
 			it("should parse correct highlight with correct priority", function()
 				local h = parser.parse_task(task, pri_words)
 				local expected = {
-					priority_words = {
+					priority_word = {
 						priority = "B",
 						left = 10,
 						right = 14,
@@ -128,10 +128,31 @@ describe("Highlight parser", function()
 			it("should parse correct highlight with correct priority", function()
 				local h = parser.parse_task(task, pri_words)
 				local expected = {
-					priority_words = {
+					priority_word = {
 						priority = "C",
 						left = 10,
 						right = 17,
+					},
+				}
+				assert.are.same(expected, h)
+			end)
+		end)
+
+		describe("and creation date", function()
+			local task = "2022-01-01 Do thing now"
+
+			it("should parse correct highlight with correct priority", function()
+				local h = parser.parse_task(task, pri_words)
+				local expected = {
+					creation_date = {
+						date = "2022-01-01",
+						left = 1,
+						right = 10,
+					},
+					priority_word = {
+						priority = "A",
+						left = 21,
+						right = 23,
 					},
 				}
 				assert.are.same(expected, h)
