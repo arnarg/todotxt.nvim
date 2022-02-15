@@ -6,7 +6,7 @@ describe("Task parser", function()
 
 		it("should parse task with only text", function()
 			local t = parser.parse_task(task)
-			assert.are.same(nil, t.pri)
+			assert.are.same(nil, t.priority)
 			assert.are.same(false, t.done)
 			assert.are.same("Call mom", t.text)
 		end)
@@ -17,7 +17,7 @@ describe("Task parser", function()
 
 		it("should parse task with correct priority", function()
 			local t = parser.parse_task(task)
-			assert.are.same("A", t.pri)
+			assert.are.same("A", t.priority)
 			assert.are.same(false, t.done)
 			assert.are.same("Call mom", t.text)
 		end)
@@ -50,7 +50,7 @@ describe("Task parser", function()
 			it("should parse task correctly with creation date", function()
 				local t = parser.parse_task(task)
 				local d = os.time({year=2020, month=1, day=1})
-				assert.are.same("A", t.pri)
+				assert.are.same("A", t.priority)
 				assert.are.same(d, t.creation_date)
 				assert.are.same("Call mom", t.text)
 			end)
@@ -117,6 +117,64 @@ describe("Task parser", function()
 			}
 			assert.are.same("Call mom", t.text)
 			assert.are.same(kv, t.kv)
+		end)
+	end)
+
+	describe("with priority word", function()
+		local pri_words = {
+			A = "now",
+			C = "today",
+			D = "this week",
+		}
+
+		describe("now", function()
+			local task = "Call mom now"
+
+			it("should parse task correctly", function()
+				local t = parser.parse_task(task, pri_words)
+				assert.are.same("Call mom", t.text)
+				assert.are.same("A", t.priority)
+			end)
+		end)
+
+		describe("today", function()
+			local task = "Call mom today"
+
+			it("should parse task correctly", function()
+				local t = parser.parse_task(task, pri_words)
+				assert.are.same("Call mom", t.text)
+				assert.are.same("C", t.priority)
+			end)
+		end)
+
+		describe("and creation date", function()
+			local task = "2022-01-01 Call mom this week"
+
+			it("should parse task correctly", function()
+				local t = parser.parse_task(task, pri_words)
+				assert.are.same("Call mom", t.text)
+				assert.are.same("D", t.priority)
+			end)
+		end)
+
+		describe("and priority", function()
+			local task = "(A) Call mom this week"
+
+			it("should not use priority word", function()
+				local t = parser.parse_task(task, pri_words)
+				assert.are.same("Call mom this week", t.text)
+				assert.are.same("A", t.priority)
+			end)
+		end)
+
+		describe("and without passing in pri_words", function()
+			local task = "Call mom this week"
+
+			it("should not parse priority word", function()
+				local t = parser.parse_task(task)
+				assert.are.same("Call mom this week", t.text)
+				assert.are.same(nil, t.priority)
+			end)
 		end)
 	end)
 

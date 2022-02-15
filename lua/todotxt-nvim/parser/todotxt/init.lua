@@ -50,14 +50,22 @@ local function parse_kv(str)
 	return kv, str
 end
 
+local function parse_word_pri(str, pri)
+	local p, patt = util.parse_word_pri(str, pri)
+	if p ~= nil then
+		str = string.gsub(str, "%s*"..patt.."%s*", " ", 1)
+	end
+	return p, str
+end
 
-function parser.parse_task(str)
+
+function parser.parse_task(str, pri_words)
 	local task = {}
 	-- Save original string
 	task.original_string = str
 
 	-- Check if task has priority or is done
-	task.done,  str = parse_done(str)
+	task.done, str = parse_done(str)
 
 	-- If the task is marked as done completion date will follow
 	if task.done then
@@ -65,7 +73,7 @@ function parser.parse_task(str)
 	else
 		-- If the task is not done then we can check for
 		-- a priority
-		task.pri, str = parse_pri(str)
+		task.priority, str = parse_pri(str)
 	end
 
 	-- Check if creation and completion dates are present
@@ -79,6 +87,11 @@ function parser.parse_task(str)
 
 	-- Parse key/values
 	task.kv, str = parse_kv(str)
+
+	-- Look for priority words
+	if pri_words ~= nil and task.priority == nil then
+		task.priority, str = parse_word_pri(str, pri_words)
+	end
 
 	-- Whatever is left of the string is the task
 	task.text = trim_space(str)
