@@ -1,6 +1,90 @@
 local todotxt = require('todotxt-nvim.todotxt')
 
 describe("Todotxt", function()
+	describe("convert task to string", function()
+		describe("with basic task", function()
+			local task = {
+				done = false,
+				text = "Do thing",
+			}
+
+			it("should convert to string correctly", function()
+				local s = todotxt.task_to_string(task)
+				assert.are.same("Do thing", s)
+			end)
+		end)
+
+		describe("with done task", function()
+			local d = os.time({year=2022, month=1, day=1})
+			local task = {
+				done = true,
+				completion_date = d,
+				creation_date = d,
+				text = "Do thing",
+			}
+
+			it("should convert to string correctly", function()
+				local s = todotxt.task_to_string(task)
+				assert.are.same("x 2022-01-01 2022-01-01 Do thing", s)
+			end)
+		end)
+
+		describe("with prioritized task", function()
+			local d = os.time({year=2022, month=1, day=1})
+			local task = {
+				done = false,
+				priority = "A",
+				creation_date = d,
+				text = "Do thing",
+			}
+
+			it("should convert to string correctly", function()
+				local s = todotxt.task_to_string(task)
+				assert.are.same("(A) 2022-01-01 Do thing", s)
+			end)
+		end)
+
+		describe("with task that has contexts, projects and kv", function()
+			local d = os.time({year=2022, month=1, day=1})
+			local task = {
+				done = false,
+				creation_date = d,
+				text = "Do thing",
+				contexts = {"phone", "home"},
+				projects = {"life", "financials"},
+				kv = {
+					due = "2022-02-02",
+				},
+			}
+
+			it("should convert to string correctly", function()
+				local s = todotxt.task_to_string(task)
+				assert.are.same("2022-01-01 Do thing +life +financials @phone @home due:2022-02-02", s)
+			end)
+		end)
+
+		describe("with task with mixed fields", function()
+			local d = os.time({year=2022, month=1, day=1})
+			local task = {
+				done = true,
+				completion_date = d,
+				creation_date = d,
+				priority = "B",
+				text = "Do thing",
+				contexts = {"phone"},
+				projects = {"life"},
+				kv = {
+					due = "2022-02-02",
+				},
+			}
+
+			it("should convert to string correctly", function()
+				local s = todotxt.task_to_string(task)
+				assert.are.same("x 2022-01-01 2022-01-01 Do thing +life @phone due:2022-02-02 pri:B", s)
+			end)
+		end)
+	end)
+
 	describe("reading file", function()
 		local tfile = io.tmpfile()
 		tfile:write("(A) Do thing +Project\n")
