@@ -6,12 +6,17 @@ local date_format = "%Y-%m-%d"
 
 local function append_to_file(task, f)
 	local close = false
-	if type(f) == "string" then
-		f = io.open(f, "a+")
+	local fi
+	if io.type(f) == "file" then
+		fi = f
+	elseif type(f) == "string" then
+		fi = io.open(f, "a")
 		close = true
 	end
-	f:write(string.format("%s\n", task))
-	if close then f:close() end
+	if fi ~= nil then
+		fi:write(string.format("%s\n", task))
+	end
+	if close and fi ~= nil then fi:close() end
 end
 
 function todotxt.task_to_string(task)
@@ -58,8 +63,11 @@ function todotxt.task_to_string(task)
 	return res
 end
 
-function todotxt.add_task_to_file(task_str, f)
-	local task = parser.parse_task(task_str)
+function todotxt.add_task_to_file(task_str, f, pri_words)
+	local task = parser.parse_task(task_str, pri_words)
+	if task.text == "" then
+		return nil
+	end
 	-- Task shouldn't be added as complete but we'll at least support it
 	if task.done and task.completion_date == nil then
 		task.completion_date = os.time()

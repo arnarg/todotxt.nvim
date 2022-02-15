@@ -1,63 +1,64 @@
+local config = require('todotxt-nvim.config')
 local hi_parser = require('todotxt-nvim.parser.highlight')
-local ta_parser = require('todotxt-nvim.parser.todotxt')
+local todo_lib = require('todotxt-nvim.todotxt')
 
 local has_nui, Input = pcall(require, 'nui.input')
 if not has_nui then
 	error "This plugin requires nui.nvim (https://github.com/MunifTanjim/nui.nvim)."
 end
 
+local opts = {}
+
 local todotxt = {}
 
 function todotxt.setup(custom_opts)
+	config.set_options(custom_opts)
+	opts = require('todotxt-nvim.config').options
 
+	if opts.todo_file == nil then
+		error "todo_file path is required."
+	end
+
+	-- Set project, context and date highlights
+	for _, hl in ipairs({"project", "context", "date"}) do
+		local hl_group = "todo_txt_"..hl
+		local hl_data = opts.highlights[hl]
+		local fg = string.format("ctermfg=%s guifg=%s", hl_data.fg or "NONE", hl_data.fg or "NONE")
+		local bg = string.format("ctermbg=%s guibg=%s", hl_data.bg or "NONE", hl_data.bg or "NONE")
+		local style = string.format("cterm=%s gui=%s", hl_data.style or "NONE", hl_data.style or "NONE")
+		vim.cmd(string.format("hi %s %s %s %s", hl_group, fg, bg, style))
+	end
+
+	-- Set priority highlights
+	for pri, data in pairs(opts.highlights.priorities) do
+		local hl_group = "todo_txt_pri_"..string.lower(pri)
+		local fg = string.format("ctermfg=%s guifg=%s", data.fg or "NONE", data.fg or "NONE")
+		local bg = string.format("ctermbg=%s guibg=%s", data.bg or "NONE", data.bg or "NONE")
+		local style = string.format("cterm=%s gui=%s", data.style or "NONE", data.style or "NONE")
+		vim.cmd(string.format("hi %s %s %s %s", hl_group, fg, bg, style))
+	end
+
+	vim.cmd("command! ToDoTxtCapture lua require('todotxt-nvim').capture()")
 end
 
-function todotxt.add_task(cb)
+function todotxt.capture()
+	if opts == nil then
+		error "Setup has not been called."
+	end
+
 	local ns = vim.api.nvim_create_namespace("todo_txt")
 	local mark_id = 0
-	local last_start = 0
-	local last_stop = 0
-	local prompt = "> "
+	local alt_pri = opts.capture.alternative_priority
+	local todo_file = opts.todo_file
 
-	vim.api.nvim_command("hi todo_txt_pri_a ctermfg=red guifg=red cterm=bold gui=bold")
-	vim.api.nvim_command("hi todo_txt_pri_b ctermfg=magenta guifg=magenta cterm=bold gui=bold")
-	vim.api.nvim_command("hi todo_txt_pri_c ctermfg=yellow guifg=yellow cterm=bold gui=bold")
-	vim.api.nvim_command("hi todo_txt_pri_d ctermfg=cyan guifg=cyan cterm=bold gui=bold")
-	vim.api.nvim_command("hi todo_txt_project ctermfg=magenta guifg=magenta")
-	vim.api.nvim_command("hi todo_txt_context ctermfg=cyan guifg=cyan")
-	vim.api.nvim_command("hi todo_txt_creation_date cterm=underline gui=underline")
-
-	local _popup_options = {
-		relative = "editor",
-		size = "75%",
-		position = "50%",
-		border = {
-			style = "rounded",
-			text = {
-				top = "[Add Task]",
-				top_align = "center",
-			},
-		},
-		win_options = {
-			winhighlight = "Normal:Normal",
-		},
-	}
-
-	local priority_words = {
-		A = "now",
-		C = "today",
-		D = "this week",
-		E = "next week",
-	}
-
-	local input = Input(_popup_options, {
-		prompt = prompt,
+	local input = Input(opts._popup_options, {
+		prompt = opts.capture.prompt,
 		on_submit = function(val)
-			local highlights = hi_parser.parse_task(val)
+			todo_lib.add_task_to_file(val, todo_file, alt_pri)
 		end,
 		on_change = function(val, b)
-			local highlights = hi_parser.parse_task(val, priority_words)
-			local p_length = #prompt
+			local highlights = hi_parser.parse_task(val, alt_pri)
+			local p_length = #opts.capture.prompt
 			-- Clear all highlights
 			vim.api.nvim_buf_clear_namespace(b, ns, 0, -1)
 			-- Add priority highlight
@@ -69,7 +70,7 @@ function todotxt.add_task(cb)
 			end
 			-- Add creation date highlight
 			if highlights.creation_date ~= nil then
-				local hi_group = "todo_txt_creation_date"
+				local hi_group = "todo_txt_date"
 				local left = p_length + highlights.creation_date.left
 				local right = p_length + highlights.creation_date.right
 				vim.api.nvim_buf_add_highlight(b, ns, hi_group, 0, left-1, right)
