@@ -4,6 +4,16 @@ local todotxt = {}
 
 local date_format = "%Y-%m-%d"
 
+local function append_to_file(task, f)
+	local close = false
+	if type(f) == "string" then
+		f = io.open(f, "a+")
+		close = true
+	end
+	f:write(string.format("%s\n", task))
+	if close then f:close() end
+end
+
 function todotxt.task_to_string(task)
 	local res = ""
 	if task.done then
@@ -17,8 +27,13 @@ function todotxt.task_to_string(task)
 		end
 
 		-- If task is done you can add priority as pri:A key value
-		if task.priority ~= nil and task.kv["pri"] == nil then
-			task.kv["pri"] = task.priority
+		if task.priority ~= nil  then
+			if task.kv == nil then
+				task.kv = {}
+			end
+			if task.kv["pri"] == nil then
+				task.kv["pri"] = task.priority
+			end
 		end
 	else
 		if task.priority ~= nil then
@@ -43,11 +58,18 @@ function todotxt.task_to_string(task)
 	return res
 end
 
-function todotxt.add_task(task_str)
+function todotxt.add_task_to_file(task_str, f)
 	local task = parser.parse_task(task_str)
+	-- Task shouldn't be added as complete but we'll at least support it
+	if task.done and task.completion_date == nil then
+		task.completion_date = os.time()
+	end
+	-- If task creation date is missing set it to now
 	if task.creation_date == nil then
 		task.creation_date = os.time()
 	end
+	out_str = todotxt.task_to_string(task)
+	append_to_file(out_str, f)
 end
 
 function todotxt.parse_file(f)

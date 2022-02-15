@@ -73,15 +73,39 @@ describe("Todotxt", function()
 				text = "Do thing",
 				contexts = {"phone"},
 				projects = {"life"},
-				kv = {
-					due = "2022-02-02",
-				},
 			}
 
 			it("should convert to string correctly", function()
 				local s = todotxt.task_to_string(task)
-				assert.are.same("x 2022-01-01 2022-01-01 Do thing +life @phone due:2022-02-02 pri:B", s)
+				assert.are.same("x 2022-01-01 2022-01-01 Do thing +life @phone pri:B", s)
 			end)
+		end)
+	end)
+
+	describe("adding task", function()
+		local tfile = io.tmpfile()
+		tfile:write("(A) Do thing +Project\n")
+		tfile:write("(B) Do another thing @Phone\n")
+		tfile:flush()
+		local task = "(B) Do third thing"
+		local now = os.time()
+		local expected = {
+			"(A) Do thing +Project",
+			"(B) Do another thing @Phone",
+			string.format("(B) %s Do third thing", os.date("%Y-%m-%d", now)),
+		}
+
+		it("should add new task correctly formatted to end of file", function()
+			todotxt.add_task_to_file(task, tfile)
+			-- Go to start of file again
+			tfile:seek("set")
+			local lines = {}
+			for line in tfile:lines() do
+				lines[#lines+1] = line
+			end
+			tfile:close()
+
+			assert.are.same(expected, lines)
 		end)
 	end)
 
