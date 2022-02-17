@@ -160,8 +160,8 @@ function todotxt.open_task_pane()
 
 	tree:render()
 
-	-- expand current node
-	split:map("n", "l", function()
+	-- toggle current node
+	split:map("n", "<Space>", function()
 		local node = tree:get_node()
 		
 		if node:is_expanded() then
