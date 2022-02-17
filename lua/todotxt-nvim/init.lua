@@ -1,13 +1,21 @@
 local config = require('todotxt-nvim.config')
 local hi_parser = require('todotxt-nvim.parser.highlight')
 local todo_lib = require('todotxt-nvim.todotxt')
+local StateStore = require('todotxt-nvim.state')
 
 local has_nui, Input = pcall(require, 'nui.input')
 if not has_nui then
 	error "This plugin requires nui.nvim (https://github.com/MunifTanjim/nui.nvim)."
 end
+local TreeTask = require('todotxt-nvim.task_node')
+local NuiTree = require('nui.tree')
+local NuiLine = require('nui.line')
+local Split = require('nui.split')
+local event = require("nui.utils.autocmd").event
 
 local opts = {}
+
+local state
 
 local todotxt = {}
 
@@ -18,6 +26,13 @@ function todotxt.setup(custom_opts)
 	if opts.todo_file == nil then
 		error "todo_file path is required."
 	end
+
+	opts.todo_file = vim.fn.expand(opts.todo_file)
+
+	state = StateStore({
+		file = opts.todo_file,
+	})
+	state:init()
 
 	-- Set project, context and date highlights
 	for _, hl in ipairs({"project", "context", "date"}) do
@@ -38,7 +53,140 @@ function todotxt.setup(custom_opts)
 		vim.cmd(string.format("hi %s %s %s %s", hl_group, fg, bg, style))
 	end
 
+	vim.cmd("hi todo_txt_done ctermfg=gray guifg=gray")
+
 	vim.cmd("command! ToDoTxtCapture lua require('todotxt-nvim').capture()")
+end
+
+function todotxt.open_task_pane()
+	if opts == nil then
+		error "Setup has not been called."
+	end
+
+	local ns = vim.api.nvim_create_namespace("todo_txt")
+	local todo_file = opts.todo_file
+
+	local task_nodes
+	
+	function update()
+		task_nodes = {}
+		local tasks = state:get_tasks()
+
+		for _, t in ipairs(tasks) do
+			task_nodes[t.id] = TreeTask.Node(t)
+		end
+
+		table.sort(task_nodes, function(t1, t2)
+			-- Ascii character '{' comes directly after upper and lowercase
+			-- alphabet. Therefor no priority will always come after priorities.
+			local pri1 = t1.priority or "{"
+			local pri2 = t2.priority or "{"
+
+			-- Ascii character '}' is even later in the ascii table so completed
+			-- tasks always come last.
+			if t1.done then pri1 = "}" end
+			if t2.done then pri2 = "}" end
+
+			if pri1 == pri2 then
+				return t1.text < t2.text
+			end
+			return pri1 < pri2
+		end)
+	end
+	update()
+
+	function prepare_node(node)
+		local line = NuiLine()
+
+		line:append(string.rep("  ", node:get_depth() - 1))
+
+		if node.type ~= "task" then
+			line:append("  "..node.text, "todo_txt_done")
+			return line
+		end
+
+		if node.done then
+			line:append("x ")
+		elseif node.priority then
+			local pri_hi = "todo_txt_pri_"..string.lower(node.priority)
+			line:append(node.priority, pri_hi)
+			line:append(" ")
+		else
+			line:append("  ")
+		end
+
+		line:append(node.text)
+
+		for _, project in ipairs(node.projects) do
+			line:append(string.format(" +%s", project), "todo_txt_project")
+		end
+		for _, context in ipairs(node.contexts) do
+			line:append(string.format(" @%s", context), "todo_txt_context")
+		end
+
+		if node.done then
+			for _, t in ipairs(line._texts) do
+				t:set(t:content(), "todo_txt_done")
+			end
+		end
+
+		return line
+	end
+
+	local split = Split({
+		relative = "editor",
+		position = "right",
+		size = 35,
+		win_options = {
+			number = true,
+			relativenumber = false,
+			cursorline = true,
+			cursorlineopt = "number,line",
+		},
+	})
+
+	split:mount()
+
+	-- quit
+	split:map("n", "q", function()
+	  split:unmount()
+	end, { noremap = true })
+
+	local tree = NuiTree({
+		winid = split.winid,
+		nodes = task_nodes,
+		prepare_node = prepare_node,
+	})
+
+	tree:render()
+
+	-- expand current node
+	split:map("n", "l", function()
+		local node = tree:get_node()
+		
+		if node:is_expanded() then
+			node:collapse()
+		elseif not node:is_expanded() then
+			node:expand()
+		end
+		tree:render()
+	end, map_options)
+
+	-- print current node
+	split:map("n", "<CR>", function()
+		local node = tree:get_node()
+		print(vim.inspect(node))
+	end, map_options)
+
+	state:start_watch(function()
+		update()
+		tree = NuiTree({
+			winid = split.winid,
+			nodes = task_nodes,
+			prepare_node = prepare_node,
+		})
+		tree:render()
+	end)
 end
 
 function todotxt.capture()
