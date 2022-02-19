@@ -52,6 +52,7 @@ function todotxt.setup(custom_opts)
 
 	vim.cmd("hi todo_txt_done ctermfg=gray guifg=gray")
 
+	vim.cmd("command! ToDoTxtTasks lua require('todotxt-nvim').open_task_pane()")
 	vim.cmd("command! ToDoTxtCapture lua require('todotxt-nvim').capture()")
 end
 
