@@ -79,7 +79,7 @@ function todotxt.open_task_pane()
 		state.split = Split({
 			relative = "editor",
 			position = "right",
-			size = 35,
+			size = 40,
 			win_options = {
 				number = true,
 				relativenumber = false,
@@ -101,7 +101,7 @@ function todotxt.open_task_pane()
 
 	-- toggle current node
 	state.split:map("n", "m", function()
-		local node = split:get_node()
+		local node = state.split:get_node()
 		
 		if node:is_expanded() then
 			node:collapse()
