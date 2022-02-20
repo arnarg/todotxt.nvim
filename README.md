@@ -6,6 +6,8 @@
 
 Neovim plugin to view and add tasks stored in a todo.txt format.
 
+[![asciicast](doc/asciinema.png)](https://asciinema.org/a/FmM892Xfbg5U76HhMgeXYJ88u)
+
 ## Requirements
 
 - Neovim 0.5.0
