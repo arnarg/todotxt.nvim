@@ -12,7 +12,7 @@ local event = require("nui.utils.autocmd").event
 
 local opts = {}
 
-local store
+local state = {}
 
 local todotxt = {}
 
@@ -26,10 +26,10 @@ function todotxt.setup(custom_opts)
 
 	opts.todo_file = vim.fn.expand(opts.todo_file)
 
-	store = TaskStore({
+	state.store = TaskStore({
 		file = opts.todo_file,
 	})
-	store:start()
+	state.store:start()
 
 	-- Set project, context and date highlights
 	for _, hl in ipairs({"project", "context", "date"}) do
@@ -52,8 +52,22 @@ function todotxt.setup(custom_opts)
 
 	vim.cmd("hi todo_txt_done ctermfg=gray guifg=gray")
 
-	vim.cmd("command! ToDoTxtTasks lua require('todotxt-nvim').open_task_pane()")
+	vim.cmd("command! ToDoTxtTasksOpen lua require('todotxt-nvim').open_task_pane()")
+	vim.cmd("command! ToDoTxtTasksClose lua require('todotxt-nvim').close_task_pane()")
+	vim.cmd("command! ToDoTxtTasksToggle lua require('todotxt-nvim').toggle_task_pane()")
 	vim.cmd("command! ToDoTxtCapture lua require('todotxt-nvim').capture()")
+end
+
+function todotxt.toggle_task_pane()
+	if opts == nil then
+		error "Setup has not been called."
+	end
+
+	if state.split == nil or (state.split ~= nil and not state.split:is_mounted()) then
+		todotxt.open_task_pane()
+	else
+		todotxt.close_task_pane()
+	end
 end
 
 function todotxt.open_task_pane()
@@ -61,29 +75,32 @@ function todotxt.open_task_pane()
 		error "Setup has not been called."
 	end
 
-	local split = Split({
-		relative = "editor",
-		position = "right",
-		size = 35,
-		win_options = {
-			number = true,
-			relativenumber = false,
-			cursorline = true,
-			cursorlineopt = "number,line",
-		},
-	})
+	if state.split == nil then
+		state.split = Split({
+			relative = "editor",
+			position = "right",
+			size = 35,
+			win_options = {
+				number = true,
+				relativenumber = false,
+				cursorline = true,
+				cursorlineopt = "number,line",
+			},
+		})
+	end
 
-	split:mount()
-	split:set_tasks(store:get_tasks())
-	store:subscribe(split)
+	state.split:mount()
+	state.split:set_tasks(state.store:get_tasks())
+	state.store:subscribe(split)
 
 	-- quit
-	split:map("n", "q", function()
-	  split:unmount()
+	state.split:map("n", "q", function()
+	  state.split:unmount()
+	  state.split = nil
 	end, { noremap = true })
 
 	-- toggle current node
-	split:map("n", "m", function()
+	state.split:map("n", "m", function()
 		local node = split:get_node()
 		
 		if node:is_expanded() then
@@ -91,22 +108,33 @@ function todotxt.open_task_pane()
 		elseif not node:is_expanded() then
 			node:expand()
 		end
-		split:render()
+		state.split:render()
 	end, map_options)
 
 	-- delete current node
-	split:map("n", "dd", function()
-		local node = split:get_node()
+	state.split:map("n", "dd", function()
+		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
-			store:del_task_by_id(node.id)
+			state.store:del_task_by_id(node.id)
 		end
 	end)
 
 	-- print current node
-	split:map("n", "<CR>", function()
-		local node = tree:get_node()
+	state.split:map("n", "<CR>", function()
+		local node = state.split:get_node()
 		vim.notify(vim.inspect(node))
 	end, map_options)
+end
+
+function todotxt.close_task_pane()
+	if opts == nil then
+		error "Setup has not been called."
+	end
+
+	if state.split ~= nil then
+		state.split:unmount()
+		state.split = nil
+	end
 end
 
 function todotxt.capture()
