@@ -2,13 +2,13 @@ local NuiSplit = require('nui.split')
 local NuiTree = require('nui.tree')
 local NuiLine = require('nui.line')
 local event = require('nui.utils.autocmd').event
-local TreeTask = require('todotxt-nvim.task_node')
+local Node = require('todotxt-nvim.ui.node')
 
 local function new_node_tree(tasks)
 	local nodes = {}
 
 	for id, t in pairs(tasks) do
-		table.insert(nodes, TreeTask.Node(t))
+		table.insert(nodes, Node.TaskNode(t))
 	end
 
 	table.sort(nodes, function(t1, t2)
