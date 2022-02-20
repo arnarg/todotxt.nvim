@@ -91,7 +91,7 @@ function todotxt.open_task_pane()
 
 	state.split:mount()
 	state.split:set_tasks(state.store:get_tasks())
-	state.store:subscribe(split)
+	state.store:subscribe(state.split)
 
 	-- quit
 	state.split:map("n", "q", function()
@@ -116,6 +116,22 @@ function todotxt.open_task_pane()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
 			state.store:del_task_by_id(node.id)
+		end
+	end)
+
+	-- increase current node priority
+	state.split:map("n", "pu", function()
+		local node = state.split:get_node()
+		if node ~= nil and node.type == "task" then
+			state.store:inc_pri_by_task_id(node.id)
+		end
+	end)
+
+	-- lower current node priority
+	state.split:map("n", "pd", function()
+		local node = state.split:get_node()
+		if node ~= nil and node.type == "task" then
+			state.store:dec_pri_by_task_id(node.id)
 		end
 	end)
 
@@ -152,7 +168,7 @@ function todotxt.capture()
 	prompt = Prompt(opts, {
 		on_close = cleanup,
 		on_submit = function(val)
-			store:add_task(val, opts.capture.alternative_priorities)
+			state.store:add_task(val, opts.capture.alternative_priorities)
 			cleanup()
 		end,
 	})

@@ -1,4 +1,5 @@
 local parser = require('todotxt-nvim.parser.todotxt')
+local util = require('todotxt-nvim.store.util')
 
 local function init(class, opts)
 	local self = setmetatable({}, { __index = class })
@@ -144,6 +145,24 @@ function TaskStore:add_task(t)
 	self:_notify_subscribers()
 	-- Write new task at the end of file
 	append_to_file(task, self._.file)
+end
+
+function TaskStore:inc_pri_by_task_id(id)
+	local task = self._.state.tasks[id]
+	task.priority = util.inc_priority(task.priority)
+	-- Notify subscribers for a snappy update
+	self:_notify_subscribers()
+	-- Commit new state to file
+	commit_tasks_to_file(self._.state.tasks, self._.file)
+end
+
+function TaskStore:dec_pri_by_task_id(id)
+	local task = self._.state.tasks[id]
+	task.priority = util.dec_priority(task.priority)
+	-- Notify subscribers for a snappy update
+	self:_notify_subscribers()
+	-- Commit new state to file
+	commit_tasks_to_file(self._.state.tasks, self._.file)
 end
 
 function TaskStore:del_task_by_id(id)
