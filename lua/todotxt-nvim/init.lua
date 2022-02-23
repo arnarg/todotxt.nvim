@@ -80,7 +80,7 @@ function todotxt.open_task_pane()
 		state.split = Split({
 			relative = "editor",
 			position = "right",
-			size = 40,
+			size = opts.sidebar.width,
 			win_options = {
 				number = true,
 				relativenumber = false,

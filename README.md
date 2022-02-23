@@ -6,7 +6,7 @@
 
 Neovim plugin to view and add tasks stored in a todo.txt format.
 
-[![asciicast](doc/asciinema.png)](https://asciinema.org/a/FmM892Xfbg5U76HhMgeXYJ88u)
+[![asciicast](doc/asciinema.png)](https://asciinema.org/a/DVMyXY3pvUBKNdzu5Ywy9jweE)
 
 ## Requirements
 
@@ -41,6 +41,72 @@ require('todotxt-nvim').setup({
 	todo_path = "/path/to/todo.txt",
 })
 EOF
+```
+
+## Configuration
+
+```lua
+{
+	sidebar = {
+		width = 40,
+	},
+	capture = {
+		prompt = "> ",
+		width = "75%",
+		position = "50%",
+		-- Styled after https://swiftodoapp.com/todotxt-syntax/priority/
+		-- With this, if you include any of the below keywords it will
+		-- automatically use the associated priority and remove that
+		-- keyword from the final task.
+		alternative_priority = {
+			A = "now",
+			B = "next",
+			C = "today",
+			D = "this week",
+			E = "next week",
+		},
+	},
+	-- Highlights used in both capture prompt and tasks sidebar
+	highlights = {
+		project = {
+			fg = "magenta",
+			bg = "NONE",
+			style = "NONE",
+		},
+		context = {
+			fg = "cyan",
+			bg = "NONE",
+			style = "NONE",
+		},
+		date = {
+			fg = "NONE",
+			bg = "NONE",
+			style = "underline",
+		},
+		priorities = {
+			A = {
+				fg = "red",
+				bg = "NONE",
+				style = "bold",
+			},
+			B = {
+				fg = "magenta",
+				bg = "NONE",
+				style = "bold",
+			},
+			C = {
+				fg = "yellow",
+				bg = "NONE",
+				style = "bold",
+			},
+			D = {
+				fg = "cyan",
+				bg = "NONE",
+				style = "bold",
+			},
+		},
+	},
+}
 ```
 
 ## Usage

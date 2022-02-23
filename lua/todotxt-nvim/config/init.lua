@@ -1,6 +1,9 @@
 local config = {}
 
 config.options = {
+	sidebar = {
+		width = 40,
+	},
 	capture = {
 		prompt = "> ",
 		width = "75%",
