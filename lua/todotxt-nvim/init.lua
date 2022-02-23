@@ -182,6 +182,7 @@ function todotxt.edit_task(id)
 	local task, text = state.store:get_task_by_id(id)
 
 	local prompt = Prompt(opts, {
+		title = "Edit task",
 		initial_value = text,
 		on_submit = function(val)
 			state.store:update_task(id, val)
@@ -204,6 +205,7 @@ function todotxt.capture()
 	end
 
 	local prompt = Prompt(opts, {
+		title = "Add task",
 		on_submit = function(val)
 			state.store:add_task(val)
 		end,

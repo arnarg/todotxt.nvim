@@ -2,7 +2,15 @@ local NuiInput = require('nui.input')
 local hi_parser = require('todotxt-nvim.parser.highlight')
 
 local function init(class, opts, extra_opts)
-	local self = class.super.init(NuiInput, opts._popup_options, {
+	local popup_options = vim.tbl_deep_extend("force", opts._popup_options, {
+		border = {
+			text = {
+				top = "["..extra_opts.title.."]",
+			},
+		},
+	})
+
+	local self = class.super.init(NuiInput, popup_options, {
 		prompt = opts.capture.prompt,
 		on_submit = extra_opts.on_submit,
 		on_close = extra_opts.on_close,
