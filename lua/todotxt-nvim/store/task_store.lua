@@ -6,6 +6,7 @@ local function init(class, opts)
 
 	self._ = {
 		file = opts.file,
+		alt_priority = opts.alt_priority,
 		subscribers = {},
 		state = {
 			tasks = {},
@@ -134,7 +135,7 @@ end
 
 function TaskStore:add_task(t)
 	-- Parse task string
-	local task = parser.parse_task(t)
+	local task = parser.parse_task(t, self._.alt_priority)
 	-- New task doesn't have an id yet, let's get the next available
 	local id = #self._.state.tasks + 1
 	task.id = id

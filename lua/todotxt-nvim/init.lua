@@ -28,6 +28,7 @@ function todotxt.setup(custom_opts)
 
 	state.store = TaskStore({
 		file = opts.todo_file,
+		alt_priority = opts.capture.alternative_priority,
 	})
 	state.store:start()
 
