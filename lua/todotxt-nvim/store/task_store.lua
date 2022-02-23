@@ -133,6 +133,13 @@ function TaskStore:get_tasks()
 	return self._.state.tasks
 end
 
+function TaskStore:get_task_by_id(id)
+	local task = self._.state.tasks[id]
+	if task then
+		return self._.state.tasks[id], to_string(self._.state.tasks[id])
+	end
+end
+
 function TaskStore:add_task(t)
 	-- Parse task string
 	local task = parser.parse_task(t, self._.alt_priority)
@@ -214,7 +221,17 @@ function TaskStore:uncomplete_task_by_id(id)
 end
 
 function TaskStore:update_task(id, t)
-	-- TODO: implement updating task
+	-- Parse task string
+	local task = parser.parse_task(t, self._.alt_priority)
+	-- Set the old id on the newly parsed task
+	task.id = id
+	self._.state.tasks[id] = task
+	add_to_projects(task, self._.state)
+	add_to_contexts(task, self._.state)
+	-- Notify subscribers for a snappy update
+	self:_notify_subscribers()
+	-- Commit new state to file
+	commit_tasks_to_file(self._.state.tasks, self._.file)
 end
 
 function TaskStore:subscribe(subscriber)

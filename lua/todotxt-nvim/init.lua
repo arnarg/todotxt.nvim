@@ -148,6 +148,14 @@ function todotxt.open_task_pane()
 		end
 	end)
 
+	-- edit task
+	state.split:map("n", "e", function()
+		local node = state.split:get_node()
+		if node ~= nil and node.type == "task" then
+			todotxt.edit_task(node.id)
+		end
+	end)
+
 	-- print current node
 	state.split:map("n", "<CR>", function()
 		local node = state.split:get_node()
@@ -166,23 +174,38 @@ function todotxt.close_task_pane()
 	end
 end
 
+function todotxt.edit_task(id)
+	if opts == nil then
+		error "Setup has not been called."
+	end
+
+	local task, text = state.store:get_task_by_id(id)
+
+	local prompt = Prompt(opts, {
+		initial_value = text,
+		on_submit = function(val)
+			state.store:update_task(id, val)
+		end,
+	})
+
+	prompt:mount()
+
+	-- Leaving the buffer is not allowed
+	prompt:on(event.BufLeave, function()
+		prompt:unmount()
+	end)
+
+	prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true })
+end
+
 function todotxt.capture()
 	if opts == nil then
 		error "Setup has not been called."
 	end
 
-	local prompt
-
-	function cleanup()
-		-- remove reference to the prompt so it can be garbage collected
-		prompt = nil
-	end
-
-	prompt = Prompt(opts, {
-		on_close = cleanup,
+	local prompt = Prompt(opts, {
 		on_submit = function(val)
-			state.store:add_task(val, opts.capture.alternative_priorities)
-			cleanup()
+			state.store:add_task(val)
 		end,
 	})
 

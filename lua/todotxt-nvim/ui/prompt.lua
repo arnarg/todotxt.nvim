@@ -6,6 +6,7 @@ local function init(class, opts, extra_opts)
 		prompt = opts.capture.prompt,
 		on_submit = extra_opts.on_submit,
 		on_close = extra_opts.on_close,
+		default_value = extra_opts.initial_value,
 	})
 
 	self._extra = {
