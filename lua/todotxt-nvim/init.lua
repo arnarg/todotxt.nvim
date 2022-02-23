@@ -136,6 +136,18 @@ function todotxt.open_task_pane()
 		end
 	end)
 
+	-- complete task
+	state.split:map("n", "<space>", function()
+		local node = state.split:get_node()
+		if node ~= nil and node.type == "task" then
+			if not node.done then
+				state.store:complete_task_by_id(node.id)
+			else
+				state.store:uncomplete_task_by_id(node.id)
+			end
+		end
+	end)
+
 	-- print current node
 	state.split:map("n", "<CR>", function()
 		local node = state.split:get_node()

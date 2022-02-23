@@ -177,6 +177,41 @@ function TaskStore:del_task_by_id(id)
 	commit_tasks_to_file(self._.state.tasks, self._.file)
 end
 
+function TaskStore:complete_task_by_id(id)
+	local task = self._.state.tasks[id]
+	-- Mark it as completed
+	task.done = true
+	-- Put priority in metadata
+	if task.priority then
+		task.kv["pri"] = task.priority
+	end
+	-- Set completion date
+	if task.creation_date then
+		task.completion_date = os.time()
+	end
+	-- Notify subscribers for a snappy update
+	self:_notify_subscribers()
+	-- Commit new state to file
+	commit_tasks_to_file(self._.state.tasks, self._.file)
+end
+
+function TaskStore:uncomplete_task_by_id(id)
+	local task = self._.state.tasks[id]
+	-- Mark it as completed
+	task.done = false
+	-- Put priority in metadata
+	if task.kv["pri"] ~= nil and string.match(task.kv["pri"], "[A-Z]") then
+		task.priority = task.kv["pri"]
+		task.kv["pri"] = nil
+	end
+	-- Set completion date
+	task.completion_date = nil
+	-- Notify subscribers for a snappy update
+	self:_notify_subscribers()
+	-- Commit new state to file
+	commit_tasks_to_file(self._.state.tasks, self._.file)
+end
+
 function TaskStore:update_task(id, t)
 	-- TODO: implement updating task
 end

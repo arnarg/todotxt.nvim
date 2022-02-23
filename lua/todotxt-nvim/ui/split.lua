@@ -35,7 +35,7 @@ local function prepare_node(node)
 
 	line:append(string.rep("  ", node:get_depth() - 1))
 
-	if node.type ~= "task" then
+	if node.type == "meta" then
 		line:append("  "..node.text, "todo_txt_done")
 		return line
 	end
