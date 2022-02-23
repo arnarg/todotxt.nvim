@@ -13,7 +13,7 @@ function Node.TaskNode(task)
 	if task.completion_date then
 		fields[#fields+1] = NuiTree.Node({
 			type = "meta",
-			text = string.format("Completion date: %s", os.date("%Y-%m-%d", task.creation_date)),
+			text = string.format("Completion date: %s", os.date("%Y-%m-%d", task.completion_date)),
 		})
 	end
 
