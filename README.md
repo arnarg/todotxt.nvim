@@ -132,7 +132,7 @@ EOF
 
 `:ToDoTasksToggle`: Opens up a sidebar split with tasks parsed from todo.txt file provided to `setup()`. There is also `:ToDoTasksOpen` and `:ToDoTasksClose` available.
 
-### Kemap in sidebar split
+### Keymap in sidebar split
 
 | Keymap    | Action                             |
 |-----------|------------------------------------|
