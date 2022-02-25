@@ -226,4 +226,52 @@ describe("Todot.txt task", function()
 			end)
 		end)
 	end)
+
+	describe("completing a task", function()
+		local task = "Call mom"
+
+		it("should mark the task as complete", function()
+			local t = Task(task)
+			assert.are.same(false, t:is_completed())
+			t:complete()
+			assert.are.same(true, t:is_completed())
+			assert.are.same("x Call mom", t:string())
+		end)
+
+		describe("with priority", function()
+			local task = "(A) Call mom"
+
+			it("should mark the task as complete and move priority to kv", function()
+				local t = Task(task)
+				assert.are.same(false, t:is_completed())
+				t:complete()
+				assert.are.same(true, t:is_completed())
+				assert.are.same("x Call mom pri:A", t:string())
+			end)
+		end)
+	end)
+
+	describe("uncompleting a task", function()
+		local task = "x Call mom"
+
+		it("should mark the task as uncomplete", function()
+			local t = Task(task)
+			assert.are.same(true, t:is_completed())
+			t:uncomplete()
+			assert.are.same(false, t:is_completed())
+			assert.are.same("Call mom", t:string())
+		end)
+
+		describe("with priority", function()
+			local task = "x Call mom pri:A"
+
+			it("should mark the task as uncomplete and move priority from kv", function()
+				local t = Task(task)
+				assert.are.same(true, t:is_completed())
+				t:uncomplete()
+				assert.are.same(false, t:is_completed())
+				assert.are.same("(A) Call mom", t:string())
+			end)
+		end)
+	end)
 end)

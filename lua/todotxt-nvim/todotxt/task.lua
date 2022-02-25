@@ -167,7 +167,7 @@ function Task:complete()
 	self.done = true
 	-- Put priority in metadata
 	if self.priority then
-		self.kv["pri"] = task.priority
+		self.kv["pri"] = self.priority
 	end
 	-- Set completion date
 	if self.creation_date then
