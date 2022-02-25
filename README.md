@@ -30,7 +30,7 @@ Add the `setup()` function to your init file.
 For `init.lua`:
 ```lua
 require('todotxt-nvim').setup({
-	todo_path = "/path/to/todo.txt",
+	todo_file = "/path/to/todo.txt",
 })
 ```
 
@@ -38,7 +38,7 @@ For `init.vim`:
 ```vim
 lua <<EOF
 require('todotxt-nvim').setup({
-	todo_path = "/path/to/todo.txt",
+	todo_file = "/path/to/todo.txt",
 })
 EOF
 ```
@@ -47,6 +47,7 @@ EOF
 
 ```lua
 {
+	todo_file = "/path/to/todo.txt",
 	sidebar = {
 		width = 40,
 	},
@@ -111,4 +112,18 @@ EOF
 
 ## Usage
 
-After calling setup you can open a prompt with `:ToDoTxtCapture`.
+### Commands
+
+`:ToDoTxtCapture`: Opens up a prompt to add a new task.
+
+`:ToDoTasksToggle`: Opens up a sidebar split with tasks parsed from todo.txt file provided to `setup()`. There is also `:ToDoTasksOpen` and `:ToDoTasksClose` available.
+
+### Kemap in sidebar split
+
+| Keymap    | Action                             |
+|-----------|------------------------------------|
+| `e`       | Edit task under cursor             |
+| `dd`      | Delete task under cursor           |
+| `<space>` | Mark task under cursor as complete |
+| `m`       | Toggle metadata for task           |
+| `q`       | Close sidebar pane                 |
