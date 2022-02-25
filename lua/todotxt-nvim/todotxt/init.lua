@@ -20,6 +20,10 @@ local TodoTxt = setmetatable({
 	__name = "TodoTxt",
 })
 
+function TodoTxt:init(filename, extras)
+	return init(self, filename, extras)
+end
+
 function TodoTxt:parse()
 	self.tasks = {}
 	for line in io.lines(self._.filename) do
@@ -47,9 +51,24 @@ end
 function TodoTxt:add(task_str)
 	local task = Task(task_str, self._.pri_words)
 	if task ~= nil then
+		if not task.creation_date then
+			task.creation_date = os.time()
+		end
 		-- The next available id becomes the new task's id
 		task.id = #self.tasks + 1
 		self.tasks[task.id] = task
+	end
+end
+
+function TodoTxt:remove(id)
+	self.tasks[id] = nil
+end
+
+function TodoTxt:update(id, task_str)
+	local task = Task(task_str, self._.pri_words)
+	if task ~= nil then
+		task.id = id
+		self.tasks[id] = task
 	end
 end
 

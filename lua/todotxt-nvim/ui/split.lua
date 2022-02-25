@@ -128,9 +128,9 @@ function Split:get_node()
 	end
 end
 
-function Split:update_state(state)
+function Split:update_state(tasks)
 	if self:is_mounted() then
-		self:set_tasks(state.tasks)
+		self:set_tasks(tasks)
 		return true
 	end
 	return false

@@ -116,23 +116,7 @@ function todotxt.open_task_pane()
 	state.split:map("n", "dd", function()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
-			state.store:del_task_by_id(node.id)
-		end
-	end)
-
-	-- increase current node priority
-	state.split:map("n", "pu", function()
-		local node = state.split:get_node()
-		if node ~= nil and node.type == "task" then
-			state.store:inc_pri_by_task_id(node.id)
-		end
-	end)
-
-	-- lower current node priority
-	state.split:map("n", "pd", function()
-		local node = state.split:get_node()
-		if node ~= nil and node.type == "task" then
-			state.store:dec_pri_by_task_id(node.id)
+			state.store:remove_task(node.id)
 		end
 	end)
 
@@ -140,11 +124,14 @@ function todotxt.open_task_pane()
 	state.split:map("n", "<space>", function()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
-			if not node.done then
-				state.store:complete_task_by_id(node.id)
+			local task = state.store:get_task_by_id(node.id)
+			if not task:is_completed() then
+				task:complete()
 			else
-				state.store:uncomplete_task_by_id(node.id)
+				task:uncomplete()
 			end
+			state.store:notify()
+			state.store:save()
 		end
 	end)
 
@@ -159,7 +146,6 @@ function todotxt.open_task_pane()
 	-- print current node
 	state.split:map("n", "<CR>", function()
 		local node = state.split:get_node()
-		vim.notify(vim.inspect(node))
 	end, map_options)
 end
 
@@ -179,13 +165,13 @@ function todotxt.edit_task(id)
 		error "Setup has not been called."
 	end
 
-	local task, text = state.store:get_task_by_id(id)
+	local task = state.store:get_task_by_id(id)
 
 	local prompt = Prompt(opts, {
 		title = "Edit task",
-		initial_value = text,
+		initial_value = task:string(),
 		on_submit = function(val)
-			state.store:update_task(id, val)
+			state.store:update_task(task.id, val)
 		end,
 	})
 
