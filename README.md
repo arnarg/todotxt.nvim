@@ -8,6 +8,20 @@ Neovim plugin to view and add tasks stored in a todo.txt format.
 
 [![asciicast](doc/asciinema.png)](https://asciinema.org/a/DVMyXY3pvUBKNdzu5Ywy9jweE)
 
+## Features
+
+### Sidebar split
+
+Sidebar split to view and manage tasks.
+
+![sidebar](doc/sidebar.png)
+
+### Prompt
+
+Prompt to quickly add new tasks.
+
+![prompt](doc/prompt.png)
+
 ## Requirements
 
 - Neovim 0.5.0
