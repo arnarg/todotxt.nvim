@@ -59,7 +59,9 @@ end
 local function init(class, task_str, pri_words)
 	local self = setmetatable({}, { __index = class })
 
-	self:parse(task_str, pri_words)
+	if not self:parse(task_str, pri_words) then
+		return nil
+	end
 
 	return self
 end
@@ -73,40 +75,45 @@ local Task = setmetatable({
 
 -- TODO: make sure urls aren't parsed as metadata
 function Task:parse(task_str, pri_words)
+	local str = trim_space(task_str)
+	if #str < 1 then
+		return false
+	end
 	-- Save original string
-	self._raw = task_str
+	self._raw = str
 
 	-- Check if task is done
-	self.done, task_str = parse_done(task_str)
+	self.done, str = parse_done(str)
 
 	-- If the task is marked as done completion date will follow
 	if self.done then
-		self.completion_date, task_str = parse_date(task_str)
+		self.completion_date, str = parse_date(str)
 	else
 		-- If the task is not done then we can check for
 		-- a priority
-		self.priority, task_str = parse_pri(task_str)
+		self.priority, str = parse_pri(str)
 	end
 
 	-- Check if creation and completion dates are present
-	self.creation_date, task_str = parse_date(task_str)
+	self.creation_date, str = parse_date(str)
 
 	-- Parse projects
-	self.projects, task_str = parse_specials(task_str, "%+")
+	self.projects, str = parse_specials(str, "%+")
 
 	-- Parse contexts
-	self.contexts, task_str = parse_specials(task_str, "@")
+	self.contexts, str = parse_specials(str, "@")
 
 	-- Parse key/values
-	self.kv, task_str = parse_kv(task_str)
+	self.kv, str = parse_kv(str)
 
 	-- Look for priority words
 	if pri_words ~= nil and self.priority == nil then
-		self.priority, task_str = parse_word_pri(task_str, pri_words)
+		self.priority, str = parse_word_pri(str, pri_words)
 	end
 
-	-- Whatever is left of the task_string is the task
-	self.text = trim_space(task_str)
+	-- Whatever is left of the string is the task
+	self.text = trim_space(str)
+	return true
 end
 
 function Task:is_completed()

@@ -46,9 +46,11 @@ end
 
 function TodoTxt:add(task_str)
 	local task = Task(task_str, self._.pri_words)
-	-- The next available id becomes the new task's id
-	task.id = #self.tasks + 1
-	self.tasks[task.id] = task
+	if task ~= nil then
+		-- The next available id becomes the new task's id
+		task.id = #self.tasks + 1
+		self.tasks[task.id] = task
+	end
 end
 
 function TodoTxt:get_tasks()

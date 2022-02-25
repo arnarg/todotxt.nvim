@@ -10,7 +10,9 @@ describe("TodoTxt", function()
 			}
 		})
 		todotxt:add("Do high priority task now")
+		todotxt:add("") -- Test an empty line
 		todotxt:add("(B) Call mom +PersonalLife @Home")
+		todotxt:add("    ") -- Test a line with nothing but whitespace
 		todotxt:add("2022-02-25 Do task with date due:2022-02-27")
 
 		it("should parse tasks correctly", function()

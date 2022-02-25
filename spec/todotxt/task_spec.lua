@@ -2,6 +2,15 @@ local Task = require('todotxt-nvim.todotxt.task')
 
 describe("Todot.txt task", function()
 	describe("parsing from string", function()
+		describe("with empty string", function()
+			local task = ""
+
+			it("should not parse task", function()
+				local t = Task(task)
+				assert.are.same(nil, t)
+			end)
+		end)
+
 		describe("with only text", function()
 			local task = "Call mom"
 
