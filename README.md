@@ -1,9 +1,5 @@
 # todotxt.nvim
 
-🚧 **Work in progress** 🚧
-
-**There is more to come but if you really want to try it out you can follow instructions below (might not be up to date though).**
-
 Neovim plugin to view and add tasks stored in a todo.txt format.
 
 [![asciicast](doc/asciinema.png)](https://asciinema.org/a/DVMyXY3pvUBKNdzu5Ywy9jweE)
