@@ -55,4 +55,18 @@ describe("TodoTxt", function()
 			assert.are.same("Do very high priority task", tasks[1]:description())
 		end)
 	end)
+
+	describe("removing task", function()
+		local todotxt = TodoTxt()
+		todotxt:add("(B) Do high priority task")
+
+		it("should change the task accordingly", function()
+			local tasks = todotxt:get_tasks()
+			assert.are.same("B", tasks[1].priority)
+			assert.are.same("Do high priority task", tasks[1]:description())
+
+			todotxt:remove(1)
+			assert.are.same(nil, tasks[1])
+		end)
+	end)
 end)
