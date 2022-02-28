@@ -24,7 +24,7 @@ local function init(class, opts, extra_opts)
 		ns = vim.api.nvim_create_namespace("todo_txt"),
 	}
 
-	function on_change(val, b)
+	local function on_change(val, b)
 		local highlights = hi_parser.parse_task(val, self._extra.alt_pri)
 		local p_length = #self._extra.prompt
 		-- Clear all highlights
@@ -77,11 +77,11 @@ local function init(class, opts, extra_opts)
 			if self._extra.mark_id ~= 0 then
 				mopts.id = self._extra.mark_id
 			end
-			_id = vim.api.nvim_buf_set_extmark(b, self._extra.ns, 0, 0, mopts)
+			local _id = vim.api.nvim_buf_set_extmark(b, self._extra.ns, 0, 0, mopts)
 			if self._extra.mark_id == 0 then
 				self._extra.mark_id = _id
 			end
-		elseif mark_id ~= 0 then
+		elseif self._extra.mark_id ~= 0 then
 			-- Delete extmark
 			vim.api.nvim_buf_del_extmark(b, self._extra.ns, self._extra.mark_id)
 			self._extra.mark_id = 0
@@ -93,8 +93,8 @@ local function init(class, opts, extra_opts)
 	-- get until we call the super constructor.
 	self.input_props.on_change = function()
 		local value_with_prompt = vim.api.nvim_buf_get_lines(self.bufnr, 0, 1, false)[1]
-      		local value = string.sub(value_with_prompt, #self._extra.prompt + 1)
-      		on_change(value)
+		local value = string.sub(value_with_prompt, #self._extra.prompt + 1)
+		on_change(value)
 	end
 	return self
 end

@@ -24,7 +24,7 @@ function Node.TaskNode(task)
 		})
 	end
 
-	task_node = NuiTree.Node(task, fields)
+	local task_node = NuiTree.Node(task, fields)
 	task_node.type = "task"
 	task_node._task = task
 

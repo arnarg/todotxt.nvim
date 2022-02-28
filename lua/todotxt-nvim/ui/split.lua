@@ -7,7 +7,7 @@ local Node = require('todotxt-nvim.ui.node')
 local function new_node_tree(tasks)
 	local nodes = {}
 
-	for id, t in pairs(tasks) do
+	for _, t in pairs(tasks) do
 		table.insert(nodes, Node.TaskNode(t))
 	end
 

@@ -16,6 +16,7 @@
           nativeBuildInputs = with pkgs; [
             luajit
             luajitPackages.busted
+            luajitPackages.luacheck
           ];
           LUA_PATH = "${currDir}/lua/?.lua;${currDir}/lua/?/init.lua";
         };

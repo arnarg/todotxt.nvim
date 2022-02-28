@@ -2,7 +2,7 @@ local util = require('todotxt-nvim.parser.util')
 
 local parser = {}
 
-local function parse_pri(str, l, r)
+local function parse_pri(str, l)
 	local pri, le, ri = util.parse_pri(str, l)
 	if pri ~= nil then
 		local _, new_l = string.find(str, "^%s*", ri+1)
@@ -15,7 +15,7 @@ local function parse_pri(str, l, r)
 	return nil, le
 end
 
-local function parse_date(str, l, r)
+local function parse_date(str, l)
 	local date, le, ri = util.parse_date(str, l)
 	if date ~= nil then
 		local _, new_l = string.find(str, "^%s*", ri+1)
@@ -63,8 +63,8 @@ local function parse_tags(str, l, r)
 end
 
 local function parse_word_pri(str, pri, l, r)
-	local p, _, l, r = util.parse_word_pri(str, pri, l, r)
-	return p ~= nil and { priority = p, left = l, right = r } or nil
+	local p, _, le, ri = util.parse_word_pri(str, pri, l, r)
+	return p ~= nil and { priority = p, left = le, right = ri } or nil
 end
 
 function parser.parse_task(str, pri_words)

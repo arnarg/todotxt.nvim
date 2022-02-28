@@ -18,12 +18,12 @@ local function parse_done(str)
 end
 
 local function parse_pri(str)
-	local pri, l, r = util.parse_pri(str)
+	local pri, _, r = util.parse_pri(str)
 	return pri, pri ~= nil and trim_space(string.sub(str, r+1)) or str
 end
 
 local function parse_date(str)
-	local md, l, r = util.parse_date(str)
+	local md, _, r = util.parse_date(str)
 	local date = md ~= nil and parse_date_str(md) or nil
 	return date, md ~= nil and trim_space(string.sub(str, r+1)) or str
 end

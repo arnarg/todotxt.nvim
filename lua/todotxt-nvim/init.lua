@@ -1,5 +1,4 @@
 local config = require('todotxt-nvim.config')
-local hi_parser = require('todotxt-nvim.parser.highlight')
 local TaskStore = require('todotxt-nvim.store.task_store')
 local Split = require('todotxt-nvim.ui.split')
 local Prompt = require('todotxt-nvim.ui.prompt')
@@ -89,16 +88,17 @@ function todotxt.open_task_pane()
 	state.split:set_tasks(state.store:get_tasks())
 	state.store:subscribe(state.split)
 
+	local map_options = { noremap = true, nowait = true }
+
 	-- quit
 	state.split:map("n", "q", function()
 	  state.split:unmount()
 	  state.split = nil
-	end, { noremap = true })
+	end, map_options)
 
 	-- toggle current node
 	state.split:map("n", "m", function()
 		local node = state.split:get_node()
-		
 		if node:is_expanded() then
 			node:collapse()
 		elseif not node:is_expanded() then
@@ -113,7 +113,7 @@ function todotxt.open_task_pane()
 		if node ~= nil and node.type == "task" then
 			state.store:remove_task(node.id)
 		end
-	end)
+	end, map_options)
 
 	-- complete task
 	state.split:map("n", "<space>", function()
@@ -128,7 +128,7 @@ function todotxt.open_task_pane()
 			state.store:notify()
 			state.store:save()
 		end
-	end)
+	end, map_options)
 
 	-- edit task
 	state.split:map("n", "e", function()
@@ -136,11 +136,12 @@ function todotxt.open_task_pane()
 		if node ~= nil and node.type == "task" then
 			todotxt.edit_task(node.id)
 		end
-	end)
+	end, map_options)
 
 	-- print current node
 	state.split:map("n", "<CR>", function()
 		local node = state.split:get_node()
+		vim.notify(vim.inspect(node))
 	end, map_options)
 end
 
