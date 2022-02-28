@@ -5,7 +5,7 @@ local function init(class, filename, extras)
 
 	self._ = {
 		filename = filename,
-		pri_words = extras.priority_words,
+		pri_words = (extras or {}).priority_words,
 	}
 
 	self.tasks = {}
