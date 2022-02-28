@@ -42,6 +42,13 @@ local function parse_kv(str)
 	-- Both key and value must consist of non-whitespace characters,
 	-- which are not colons.
 	str = string.gsub(str, "%s*([^%s:]+):([^%s:]+)%s*", function(k, v)
+		-- Rather naive way of ignoring http(s) urls from being parsed as kv
+		-- if more protocols need to be supported this will need to be
+		-- rewamped into something more sophisticated
+		if string.match(k, "^https?$") and string.match(v, "^//") then
+			return false
+		end
+
 		kv[k] = v
 		return " "
 	end)
@@ -73,7 +80,6 @@ local Task = setmetatable({
 	__name = "Task",
 })
 
--- TODO: make sure urls aren't parsed as metadata
 function Task:parse(task_str, pri_words)
 	local str = trim_space(task_str)
 	if #str < 1 then

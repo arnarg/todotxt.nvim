@@ -234,6 +234,17 @@ describe("Todot.txt task", function()
 				end)
 			end)
 		end)
+
+		describe("with a url", function()
+			local task = "Read article https://example.com/article"
+
+			it("should not treat the url as key/value", function()
+				local t = Task(task)
+
+				assert.are.same("Read article https://example.com/article", t:description())
+				assert.are.same(0, #t.kv)
+			end)
+		end)
 	end)
 
 	describe("completing a task", function()
