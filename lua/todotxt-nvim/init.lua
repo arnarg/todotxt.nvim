@@ -1,11 +1,6 @@
 local config = require('todotxt-nvim.config')
 local hi_parser = require('todotxt-nvim.parser.highlight')
 local TaskStore = require('todotxt-nvim.store.task_store')
-
-local has_nui, Input = pcall(require, 'nui.input')
-if not has_nui then
-	error "This plugin requires nui.nvim (https://github.com/MunifTanjim/nui.nvim)."
-end
 local Split = require('todotxt-nvim.ui.split')
 local Prompt = require('todotxt-nvim.ui.prompt')
 local event = require("nui.utils.autocmd").event
