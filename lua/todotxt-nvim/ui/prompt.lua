@@ -94,7 +94,7 @@ local function init(class, opts, extra_opts)
 	self.input_props.on_change = function()
 		local value_with_prompt = vim.api.nvim_buf_get_lines(self.bufnr, 0, 1, false)[1]
 		local value = string.sub(value_with_prompt, #self._extra.prompt + 1)
-		on_change(value)
+		on_change(value, self.bufnr)
 	end
 	return self
 end
