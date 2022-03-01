@@ -117,6 +117,14 @@ EOF
 			},
 		},
 	},
+	-- Keymap used in sidebar split
+	keymap = {
+		quit = "q",
+		toggle_metadata = "m",
+		delete_task = "dd",
+		complete_task = "<space>",
+		edit_task = "ee",
+	},
 }
 ```
 

@@ -56,6 +56,13 @@ config.options = {
 			},
 		},
 	},
+	keymap = {
+		quit = "q",
+		toggle_metadata = "m",
+		delete_task = "dd",
+		complete_task = "<space>",
+		edit_task = "ee",
+	},
 	_popup_options = {
 		relative = "editor",
 		border = {

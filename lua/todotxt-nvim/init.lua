@@ -91,13 +91,13 @@ function todotxt.open_task_pane()
 	local map_options = { noremap = true, nowait = true }
 
 	-- quit
-	state.split:map("n", "q", function()
+	state.split:map("n", opts.keymap.quit, function()
 	  state.split:unmount()
 	  state.split = nil
 	end, map_options)
 
 	-- toggle current node
-	state.split:map("n", "m", function()
+	state.split:map("n", opts.keymap.toggle_metadata, function()
 		local node = state.split:get_node()
 		if node:is_expanded() then
 			node:collapse()
@@ -108,7 +108,7 @@ function todotxt.open_task_pane()
 	end, map_options)
 
 	-- delete current node
-	state.split:map("n", "dd", function()
+	state.split:map("n", opts.keymap.delete_task, function()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
 			state.store:remove_task(node.id)
@@ -116,7 +116,7 @@ function todotxt.open_task_pane()
 	end, map_options)
 
 	-- complete task
-	state.split:map("n", "<space>", function()
+	state.split:map("n", opts.keymap.complete_task, function()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
 			local task = state.store:get_task_by_id(node.id)
@@ -131,7 +131,7 @@ function todotxt.open_task_pane()
 	end, map_options)
 
 	-- edit task
-	state.split:map("n", "e", function()
+	state.split:map("n", opts.keymap.edit_task, function()
 		local node = state.split:get_node()
 		if node ~= nil and node.type == "task" then
 			todotxt.edit_task(node.id)
