@@ -17,7 +17,7 @@ jobs:
         nix_path: nixpkgs=channel:nixos-21.11
     - uses: workflow/nix-shell-action@v3
       with:
-        packages: luajitPackages.luacheck
+        packages: luajit,luajitPackages.luacheck
         script: |
           luacheck --no-cache .
 
@@ -31,7 +31,7 @@ jobs:
         nix_path: nixpkgs=channel:nixos-21.11
     - uses: workflow/nix-shell-action@v3
       with:
-        packages: luajitPackages.busted
+        packages: luajit,luajitPackages.busted
         script: |
           busted
 
