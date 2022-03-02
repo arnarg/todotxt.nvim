@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: luacheck
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v10
+      with:
+        nix_path: nixpkgs=channel:nixos-21.11
+    - uses: workflow/nix-shell-action@v1
+      with:
+        packages: luajitPackages.luacheck
+        script: |
+          luacheck --no-cache .
+
+  test:
+    name: busted
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v10
+      with:
+        nix_path: nixpkgs=channel:nixos-21.11
+    - uses: workflow/nix-shell-action@v1
+      with:
+        packages: luajitPackages.busted
+        script: |
+          busted
+
+  format:
+    name: stylua
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v10
+      with:
+        nix_path: nixpkgs=channel:nixos-21.11
+    - uses: workflow/nix-shell-action@v1
+      with:
+        packages: stylua
+        script: |
+          stylua --color always --check lua/
