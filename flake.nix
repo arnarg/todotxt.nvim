@@ -17,6 +17,7 @@
             luajit
             luajitPackages.busted
             luajitPackages.luacheck
+            stylua
           ];
           LUA_PATH = "${currDir}/lua/?.lua;${currDir}/lua/?/init.lua";
         };
