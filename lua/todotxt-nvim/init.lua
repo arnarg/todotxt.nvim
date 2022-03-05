@@ -10,6 +10,40 @@ local state = {}
 
 local todotxt = {}
 
+local function create_hl_group(n, d)
+  local fg = string.format("ctermfg=%s guifg=%s", d.fg or "NONE", d.fg or "NONE")
+  local bg = string.format("ctermbg=%s guibg=%s", d.bg or "NONE", d.bg or "NONE")
+  local style = string.format("cterm=%s gui=%s", d.style or "NONE", d.style or "NONE")
+  vim.cmd(string.format("hi %s %s %s %s", n, fg, bg, style))
+  return n
+end
+
+local function setup_hl_groups(hls)
+  local highlights = {}
+
+  -- Set project, context and date highlights
+  for _, hl in ipairs({ "project", "context", "date", "done_task" }) do
+    local hl_data = hls[hl]
+    if type(hl_data) == "table" then
+      highlights[hl] = create_hl_group("todo_txt_" .. hl, hl_data)
+    elseif type(hl_data) == "string" then
+      highlights[hl] = hl_data
+    end
+  end
+
+  -- Set priority highlights
+  for pri, data in pairs(hls.priorities) do
+    local key = "pri_" .. string.lower(pri)
+    if type(data) == "table" then
+      highlights[key] = create_hl_group("todo_txt_pri_" .. string.lower(pri), data)
+    elseif type(data) == "string" then
+      highlights[key] = data
+    end
+  end
+
+  return highlights
+end
+
 function todotxt.setup(custom_opts)
   config.set_options(custom_opts)
   opts = require("todotxt-nvim.config").options
@@ -19,33 +53,13 @@ function todotxt.setup(custom_opts)
   end
 
   opts.todo_file = vim.fn.expand(opts.todo_file)
+  opts.hls = setup_hl_groups(opts.highlights)
 
   state.store = TaskStore({
     file = opts.todo_file,
     alt_priority = opts.capture.alternative_priority,
   })
   state.store:start()
-
-  -- Set project, context and date highlights
-  for _, hl in ipairs({ "project", "context", "date" }) do
-    local hl_group = "todo_txt_" .. hl
-    local hl_data = opts.highlights[hl]
-    local fg = string.format("ctermfg=%s guifg=%s", hl_data.fg or "NONE", hl_data.fg or "NONE")
-    local bg = string.format("ctermbg=%s guibg=%s", hl_data.bg or "NONE", hl_data.bg or "NONE")
-    local style = string.format("cterm=%s gui=%s", hl_data.style or "NONE", hl_data.style or "NONE")
-    vim.cmd(string.format("hi %s %s %s %s", hl_group, fg, bg, style))
-  end
-
-  -- Set priority highlights
-  for pri, data in pairs(opts.highlights.priorities) do
-    local hl_group = "todo_txt_pri_" .. string.lower(pri)
-    local fg = string.format("ctermfg=%s guifg=%s", data.fg or "NONE", data.fg or "NONE")
-    local bg = string.format("ctermbg=%s guibg=%s", data.bg or "NONE", data.bg or "NONE")
-    local style = string.format("cterm=%s gui=%s", data.style or "NONE", data.style or "NONE")
-    vim.cmd(string.format("hi %s %s %s %s", hl_group, fg, bg, style))
-  end
-
-  vim.cmd("hi todo_txt_done ctermfg=gray guifg=gray")
 
   vim.cmd("command! ToDoTxtTasksOpen lua require('todotxt-nvim').open_task_pane()")
   vim.cmd("command! ToDoTxtTasksClose lua require('todotxt-nvim').close_task_pane()")
@@ -75,6 +89,7 @@ function todotxt.open_task_pane()
       relative = "editor",
       position = opts.sidebar.position,
       size = opts.sidebar.width,
+      hls = opts.hls,
       win_options = {
         number = true,
         relativenumber = false,

@@ -34,6 +34,11 @@ config.options = {
       bg = "NONE",
       style = "underline",
     },
+    done_task = {
+      fg = "gray",
+      bg = "NONE",
+      style = "NONE",
+    },
     priorities = {
       A = {
         fg = "red",
