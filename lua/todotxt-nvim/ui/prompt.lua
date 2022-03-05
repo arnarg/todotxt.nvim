@@ -22,6 +22,7 @@ local function init(class, opts, extra_opts)
     alt_pri = opts.capture.alternative_priority,
     mark_id = 0,
     ns = vim.api.nvim_create_namespace("todo_txt"),
+    hls = opts.hls,
   }
 
   local function on_change(val, b)
@@ -31,21 +32,21 @@ local function init(class, opts, extra_opts)
     vim.api.nvim_buf_clear_namespace(b, self._extra.ns, 0, -1)
     -- Add priority highlight
     if highlights.priority ~= nil then
-      local hi_group = "todo_txt_pri_" .. string.lower(highlights.priority.priority)
+      local hi_group = self._extra.hls["pri_" .. string.lower(highlights.priority.priority)]
       local left = p_length + highlights.priority.left
       local right = p_length + highlights.priority.right
       vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
     end
     -- Add creation date highlight
     if highlights.creation_date ~= nil then
-      local hi_group = "todo_txt_date"
+      local hi_group = self._extra.hls.date
       local left = p_length + highlights.creation_date.left
       local right = p_length + highlights.creation_date.right
       vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
     end
     -- Add project highlights
     if highlights.projects ~= nil and #highlights.projects > 0 then
-      local hi_group = "todo_txt_project"
+      local hi_group = self._extra.hls.project
       for _, project in ipairs(highlights.projects) do
         local left = p_length + project.left
         local right = p_length + project.right
@@ -54,7 +55,7 @@ local function init(class, opts, extra_opts)
     end
     -- Add context highlights
     if highlights.contexts ~= nil and #highlights.contexts > 0 then
-      local hi_group = "todo_txt_context"
+      local hi_group = self._extra.hls.context
       for _, context in ipairs(highlights.contexts) do
         local left = p_length + context.left
         local right = p_length + context.right
@@ -64,7 +65,7 @@ local function init(class, opts, extra_opts)
     -- Check priority word
     if highlights.priority == nil and highlights.priority_word ~= nil then
       local priority = highlights.priority_word.priority
-      local hi_group = "todo_txt_pri_" .. string.lower(priority)
+      local hi_group = self._extra.hls["pri_" .. string.lower(priority)]
       -- Set highlight
       local left = p_length + highlights.priority_word.left
       local right = p_length + highlights.priority_word.right

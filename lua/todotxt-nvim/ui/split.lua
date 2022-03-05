@@ -4,6 +4,8 @@ local NuiLine = require("nui.line")
 local event = require("nui.utils.autocmd").event
 local Node = require("todotxt-nvim.ui.node")
 
+local hls
+
 local function new_node_tree(tasks)
   local nodes = {}
 
@@ -40,15 +42,15 @@ local function prepare_node(node)
   line:append(string.rep("  ", node:get_depth() - 1))
 
   if node.type == "meta" then
-    line:append("  " .. node.text, "todo_txt_done")
+    line:append("  " .. node.text, hls.done_task)
     return line
   end
 
   if node.done then
     line:append("x ")
   elseif node.priority then
-    local pri_hi = "todo_txt_pri_" .. string.lower(node.priority)
-    line:append(node.priority, pri_hi)
+    local pri_hi = "pri_" .. string.lower(node.priority)
+    line:append(node.priority, hls[pri_hi])
     line:append(" ")
   else
     line:append("  ")
@@ -57,15 +59,15 @@ local function prepare_node(node)
   line:append(node.text)
 
   for _, project in ipairs(node.projects) do
-    line:append(string.format(" +%s", project), "todo_txt_project")
+    line:append(string.format(" +%s", project), hls.project)
   end
   for _, context in ipairs(node.contexts) do
-    line:append(string.format(" @%s", context), "todo_txt_context")
+    line:append(string.format(" @%s", context), hls.context)
   end
 
   if node.done then
     for _, t in ipairs(line._texts) do
-      t:set(t:content(), "todo_txt_done")
+      t:set(t:content(), hls.done_task)
     end
   end
 
@@ -76,6 +78,7 @@ local function init(class, opts)
   local self = class.super.init(class, opts)
 
   self._extra = {}
+  hls = opts.hls
 
   return self
 end
