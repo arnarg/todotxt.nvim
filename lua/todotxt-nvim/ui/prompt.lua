@@ -33,9 +33,11 @@ local function init(class, opts, extra_opts)
     -- Add priority highlight
     if highlights.priority ~= nil then
       local hi_group = self._extra.hls["pri_" .. string.lower(highlights.priority.priority)]
-      local left = p_length + highlights.priority.left
-      local right = p_length + highlights.priority.right
-      vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+      if hi_group ~= nil then
+        local left = p_length + highlights.priority.left
+        local right = p_length + highlights.priority.right
+        vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+      end
     end
     -- Add creation date highlight
     if highlights.creation_date ~= nil then
