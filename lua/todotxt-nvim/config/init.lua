@@ -3,6 +3,7 @@ local config = {}
 config.options = {
   sidebar = {
     width = 40,
+    position = "right",
   },
   capture = {
     prompt = "> ",

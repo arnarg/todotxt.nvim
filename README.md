@@ -60,10 +60,13 @@ EOF
 	todo_file = "/path/to/todo.txt",
 	sidebar = {
 		width = 40,
+		position = "left" | "right" | "bottom" | "top", -- default: "right"
 	},
 	capture = {
 		prompt = "> ",
-		width = "75%",
+		-- Percentage is percentage of width of the whole editor
+		-- Integer is number of columns
+		width = "75%" | 50,
 		position = "50%",
 		-- Styled after https://swiftodoapp.com/todotxt-syntax/priority/
 		-- With this, if you include any of the below keywords it will
