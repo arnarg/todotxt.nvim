@@ -141,10 +141,10 @@ EOF
 
 ### Keymap in sidebar split
 
-| Keymap    | Action                             |
-|-----------|------------------------------------|
-| `e`       | Edit task under cursor             |
-| `dd`      | Delete task under cursor           |
-| `<space>` | Mark task under cursor as complete |
-| `m`       | Toggle metadata for task           |
-| `q`       | Close sidebar pane                 |
+| Keymap    | Action                                     |
+|-----------|--------------------------------------------|
+| `e`       | Edit task under cursor                     |
+| `dd`      | Delete task under cursor                   |
+| `<space>` | Toggles task under cursor as done/not done |
+| `m`       | Toggle metadata for task                   |
+| `q`       | Close sidebar pane                         |
