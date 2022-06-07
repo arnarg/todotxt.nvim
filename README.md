@@ -147,7 +147,7 @@ EOF
 
 `:ToDoTxtCapture`: Opens up a prompt to add a new task.
 
-`:ToDoTasksToggle`: Opens up a sidebar split with tasks parsed from todo.txt file provided to `setup()`. There is also `:ToDoTasksOpen` and `:ToDoTasksClose` available.
+`:ToDoTxtTasksToggle`: Opens up a sidebar split with tasks parsed from todo.txt file provided to `setup()`. There is also `:ToDoTxtTasksOpen` and `:ToDoTxtTasksClose` available.
 
 ### Keymap in sidebar split
 
