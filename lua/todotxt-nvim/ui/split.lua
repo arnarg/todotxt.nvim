@@ -75,7 +75,8 @@ local function prepare_node(node)
 end
 
 local function init(class, opts)
-  local self = class.super.init(class, opts)
+  class.super.init(class, opts)
+  local self = class
 
   self._extra = {}
   hls = opts.hls

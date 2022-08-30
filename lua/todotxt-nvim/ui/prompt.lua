@@ -10,12 +10,14 @@ local function init(class, opts, extra_opts)
     },
   })
 
-  local self = class.super.init(NuiInput, popup_options, {
+  class.super.init(NuiInput, popup_options, {
     prompt = opts.capture.prompt,
     on_submit = extra_opts.on_submit,
     on_close = extra_opts.on_close,
     default_value = extra_opts.initial_value,
   })
+
+  local self = class
 
   self._extra = {
     prompt = opts.capture.prompt,
