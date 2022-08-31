@@ -32,7 +32,7 @@ local function init(class, opts, extra_opts)
   local function on_change(val)
     local hl_table = {}
     local highlights = hi_parser.parse_task(val, self._extra.alt_pri)
-    local p_length = #self._extra.prompt
+    -- local p_length = #self._extra.prompt
     -- Clear all highlights
     -- vim.api.nvim_buf_clear_namespace(0, self._extra.ns, 0, -1)
     -- Add priority highlight
@@ -42,7 +42,7 @@ local function init(class, opts, extra_opts)
         --[[ local left = p_length + highlights.priority.left
         local right = p_length + highlights.priority.right ]]
         -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
-        hl_table:insert({highlights.priority.left, highlights.priority.right, hi_group})
+        table.insert(hl_table, { highlights.priority.left, highlights.priority.right, hi_group })
       end
     end
     -- Add creation date highlight
@@ -51,7 +51,7 @@ local function init(class, opts, extra_opts)
       --[[ local left = p_length + highlights.creation_date.left
       local right = p_length + highlights.creation_date.right ]]
       -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
-      hl_table:insert({highlights.priority.left, highlights.priority.right, hi_group})
+      table.insert(hl_table, { highlights.priority.left, highlights.priority.right, hi_group })
     end
     -- Add project highlights
     if highlights.projects ~= nil and #highlights.projects > 0 then
@@ -60,7 +60,7 @@ local function init(class, opts, extra_opts)
         --[[ local left = p_length + project.left
         local right = p_length + project.right ]]
         -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
-        hl_table:insert({project.left, project.right, hi_group})
+        table.insert(hl_table, { project.left, project.right, hi_group })
       end
     end
     -- Add context highlights
@@ -70,7 +70,7 @@ local function init(class, opts, extra_opts)
         --[[ local left = p_length + context.left
         local right = p_length + context.right
         vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right) ]]
-        hl_table:insert({context.left, context.right, hi_group})
+        table.insert(hl_table, { context.left, context.right, hi_group })
       end
     end
     -- Check priority word
@@ -81,7 +81,7 @@ local function init(class, opts, extra_opts)
       --[[ local left = p_length + highlights.priority_word.left
       local right = p_length + highlights.priority_word.right
       vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right) ]]
-      hl_table:insert({highlights.priority_word.left, highlights.priority_word.right, hi_group})
+      table.insert(hl_table, { highlights.priority_word.left, highlights.priority_word.right, hi_group })
       --[[ -- Set extmark
       local mopts = {
         virt_text = { { priority, hi_group } },
@@ -107,11 +107,12 @@ local function init(class, opts, extra_opts)
     default = nil,
     -- this could be later changed to have some useful completions, leaving this be for now
     completion = nil,
-    highlight = on_change
+    highlight = on_change,
+    cancelreturn = nil
   }
 
   local function on_confirm(input_val)
-    if not input then
+    if not input_val then
       return
     end
     extra_opts.on_submit(input_val)
