@@ -201,21 +201,21 @@ function todotxt.capture()
     error("Setup has not been called.")
   end
 
-  local prompt = Prompt(opts, {
+  local _ = Prompt(opts, {
     title = "Add task",
     on_submit = function(val)
       state.store:add_task(val)
     end,
   })
 
-  prompt:mount()
+  --[[ prompt:mount()
 
   -- Leaving the buffer is not allowed
   prompt:on(event.BufLeave, function()
     prompt:unmount()
   end)
 
-  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true })
+  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true }) ]]
 end
 
 return todotxt

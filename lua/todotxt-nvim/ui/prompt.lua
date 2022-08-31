@@ -1,21 +1,22 @@
 local NuiInput = require("nui.input")
 local hi_parser = require("todotxt-nvim.parser.highlight")
+local input = vim.ui.input
 
 local function init(class, opts, extra_opts)
-  local popup_options = vim.tbl_deep_extend("force", opts._popup_options, {
+  --[[ local popup_options = vim.tbl_deep_extend("force", opts._popup_options, {
     border = {
       text = {
         top = "[" .. extra_opts.title .. "]",
       },
     },
-  })
+  }) ]]
 
-  class.super.init(NuiInput, popup_options, {
+  --[[ class.super.init(NuiInput, popup_options, {
     prompt = opts.capture.prompt,
     on_submit = extra_opts.on_submit,
     on_close = extra_opts.on_close,
     default_value = extra_opts.initial_value,
-  })
+  }) ]]
 
   local self = class
 
@@ -27,18 +28,19 @@ local function init(class, opts, extra_opts)
     hls = opts.hls,
   }
 
-  local function on_change(val, b)
+  -- todo this also needs to be changed
+  local function on_change(val)
     local highlights = hi_parser.parse_task(val, self._extra.alt_pri)
     local p_length = #self._extra.prompt
     -- Clear all highlights
-    vim.api.nvim_buf_clear_namespace(b, self._extra.ns, 0, -1)
+    vim.api.nvim_buf_clear_namespace(0, self._extra.ns, 0, -1)
     -- Add priority highlight
     if highlights.priority ~= nil then
       local hi_group = self._extra.hls["pri_" .. string.lower(highlights.priority.priority)]
       if hi_group ~= nil then
         local left = p_length + highlights.priority.left
         local right = p_length + highlights.priority.right
-        vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
       end
     end
     -- Add creation date highlight
@@ -46,7 +48,7 @@ local function init(class, opts, extra_opts)
       local hi_group = self._extra.hls.date
       local left = p_length + highlights.creation_date.left
       local right = p_length + highlights.creation_date.right
-      vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+      vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
     end
     -- Add project highlights
     if highlights.projects ~= nil and #highlights.projects > 0 then
@@ -54,7 +56,7 @@ local function init(class, opts, extra_opts)
       for _, project in ipairs(highlights.projects) do
         local left = p_length + project.left
         local right = p_length + project.right
-        vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
       end
     end
     -- Add context highlights
@@ -63,7 +65,7 @@ local function init(class, opts, extra_opts)
       for _, context in ipairs(highlights.contexts) do
         local left = p_length + context.left
         local right = p_length + context.right
-        vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
       end
     end
     -- Check priority word
@@ -73,7 +75,7 @@ local function init(class, opts, extra_opts)
       -- Set highlight
       local left = p_length + highlights.priority_word.left
       local right = p_length + highlights.priority_word.right
-      vim.api.nvim_buf_add_highlight(b, self._extra.ns, hi_group, 0, left - 1, right)
+      vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
       -- Set extmark
       local mopts = {
         virt_text = { { priority, hi_group } },
@@ -82,25 +84,43 @@ local function init(class, opts, extra_opts)
       if self._extra.mark_id ~= 0 then
         mopts.id = self._extra.mark_id
       end
-      local _id = vim.api.nvim_buf_set_extmark(b, self._extra.ns, 0, 0, mopts)
+      local _id = vim.api.nvim_buf_set_extmark(0, self._extra.ns, 0, 0, mopts)
       if self._extra.mark_id == 0 then
         self._extra.mark_id = _id
       end
     elseif self._extra.mark_id ~= 0 then
       -- Delete extmark
-      vim.api.nvim_buf_del_extmark(b, self._extra.ns, self._extra.mark_id)
+      vim.api.nvim_buf_del_extmark(0, self._extra.ns, self._extra.mark_id)
       self._extra.mark_id = 0
     end
   end
 
+  local input_opts = {
+    prompt = opts.capture.prompt,
+    default = nil,
+    -- this could be later changed to have some useful completions, leaving this be for now
+    completion = nil,
+    highlight = on_change
+  }
+
+  local function on_confirm(input_val)
+    if not input then
+      return
+    end
+    extra_opts.on_submit(input_val)
+
+  end
+
+  input(input_opts, on_confirm)
+
   -- This is copied from NuiInput because we need to pass the on_change function as
   -- option to the constructor but we need to have a reference to self which we don't
   -- get until we call the super constructor.
-  self.input_props.on_change = function()
+  --[[ self.input_props.on_change = function()
     local value_with_prompt = vim.api.nvim_buf_get_lines(self.bufnr, 0, 1, false)[1]
     local value = string.sub(value_with_prompt, #self._extra.prompt + 1)
     on_change(value, self.bufnr)
-  end
+  end ]]
   return self
 end
 
