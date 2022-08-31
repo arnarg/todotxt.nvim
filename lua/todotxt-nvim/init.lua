@@ -186,14 +186,14 @@ function todotxt.edit_task(id)
     end,
   })
 
-  prompt:mount()
+  --[[ prompt:mount()
 
   -- Leaving the buffer is not allowed
   prompt:on(event.BufLeave, function()
     prompt:unmount()
   end)
 
-  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true })
+  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true }) ]]
 end
 
 function todotxt.capture()

@@ -30,42 +30,47 @@ local function init(class, opts, extra_opts)
 
   -- todo this also needs to be changed
   local function on_change(val)
+    local hl_table = {}
     local highlights = hi_parser.parse_task(val, self._extra.alt_pri)
     local p_length = #self._extra.prompt
     -- Clear all highlights
-    vim.api.nvim_buf_clear_namespace(0, self._extra.ns, 0, -1)
+    -- vim.api.nvim_buf_clear_namespace(0, self._extra.ns, 0, -1)
     -- Add priority highlight
     if highlights.priority ~= nil then
       local hi_group = self._extra.hls["pri_" .. string.lower(highlights.priority.priority)]
       if hi_group ~= nil then
-        local left = p_length + highlights.priority.left
-        local right = p_length + highlights.priority.right
-        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+        --[[ local left = p_length + highlights.priority.left
+        local right = p_length + highlights.priority.right ]]
+        -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+        hl_table:insert({highlights.priority.left, highlights.priority.right, hi_group})
       end
     end
     -- Add creation date highlight
     if highlights.creation_date ~= nil then
       local hi_group = self._extra.hls.date
-      local left = p_length + highlights.creation_date.left
-      local right = p_length + highlights.creation_date.right
-      vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+      --[[ local left = p_length + highlights.creation_date.left
+      local right = p_length + highlights.creation_date.right ]]
+      -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+      hl_table:insert({highlights.priority.left, highlights.priority.right, hi_group})
     end
     -- Add project highlights
     if highlights.projects ~= nil and #highlights.projects > 0 then
       local hi_group = self._extra.hls.project
       for _, project in ipairs(highlights.projects) do
-        local left = p_length + project.left
-        local right = p_length + project.right
-        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+        --[[ local left = p_length + project.left
+        local right = p_length + project.right ]]
+        -- vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+        hl_table:insert({project.left, project.right, hi_group})
       end
     end
     -- Add context highlights
     if highlights.contexts ~= nil and #highlights.contexts > 0 then
       local hi_group = self._extra.hls.context
       for _, context in ipairs(highlights.contexts) do
-        local left = p_length + context.left
+        --[[ local left = p_length + context.left
         local right = p_length + context.right
-        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
+        vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right) ]]
+        hl_table:insert({context.left, context.right, hi_group})
       end
     end
     -- Check priority word
@@ -73,10 +78,11 @@ local function init(class, opts, extra_opts)
       local priority = highlights.priority_word.priority
       local hi_group = self._extra.hls["pri_" .. string.lower(priority)]
       -- Set highlight
-      local left = p_length + highlights.priority_word.left
+      --[[ local left = p_length + highlights.priority_word.left
       local right = p_length + highlights.priority_word.right
-      vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right)
-      -- Set extmark
+      vim.api.nvim_buf_add_highlight(0, self._extra.ns, hi_group, 0, left - 1, right) ]]
+      hl_table:insert({highlights.priority_word.left, highlights.priority_word.right, hi_group})
+      --[[ -- Set extmark
       local mopts = {
         virt_text = { { priority, hi_group } },
         virt_text_pos = "right_align",
@@ -91,8 +97,9 @@ local function init(class, opts, extra_opts)
     elseif self._extra.mark_id ~= 0 then
       -- Delete extmark
       vim.api.nvim_buf_del_extmark(0, self._extra.ns, self._extra.mark_id)
-      self._extra.mark_id = 0
+      self._extra.mark_id = 0 ]]
     end
+    return hl_table
   end
 
   local input_opts = {
