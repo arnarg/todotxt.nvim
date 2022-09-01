@@ -2,7 +2,6 @@ local config = require("todotxt-nvim.config")
 local TaskStore = require("todotxt-nvim.store.task_store")
 local Split = require("todotxt-nvim.ui.split")
 local Prompt = require("todotxt-nvim.ui.prompt")
-local event = require("nui.utils.autocmd").event
 
 local opts = {}
 
@@ -46,7 +45,7 @@ end
 
 function todotxt.setup(custom_opts)
   config.set_options(custom_opts)
-  opts = require("todotxt-nvim.config").options
+  opts = require("todotxt-nvim.config").options or {}
 
   if opts.todo_file == nil then
     error("todo_file path is required.")
@@ -178,22 +177,13 @@ function todotxt.edit_task(id)
 
   local task = state.store:get_task_by_id(id)
 
-  local prompt = Prompt(opts, {
+  local _ = Prompt(opts, {
     title = "Edit task",
     initial_value = task:string(),
     on_submit = function(val)
       state.store:update_task(task.id, val)
     end,
   })
-
-  --[[ prompt:mount()
-
-  -- Leaving the buffer is not allowed
-  prompt:on(event.BufLeave, function()
-    prompt:unmount()
-  end)
-
-  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true }) ]]
 end
 
 function todotxt.capture()
@@ -207,15 +197,6 @@ function todotxt.capture()
       state.store:add_task(val)
     end,
   })
-
-  --[[ prompt:mount()
-
-  -- Leaving the buffer is not allowed
-  prompt:on(event.BufLeave, function()
-    prompt:unmount()
-  end)
-
-  prompt:map("n", "<Esc>", prompt.input_props.on_close, { noremap = true }) ]]
 end
 
 return todotxt
