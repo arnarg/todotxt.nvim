@@ -1,4 +1,3 @@
-local NuiInput = require("nui.input")
 local hi_parser = require("todotxt-nvim.parser.highlight")
 local input = vim.ui.input
 
