@@ -81,11 +81,8 @@ local function init(class, opts, extra_opts)
   return self
 end
 
-local Prompt = setmetatable({
-  super = NuiInput,
-}, {
+local Prompt = setmetatable({}, {
   __call = init,
-  __index = NuiInput,
   __name = "Prompt",
 })
 
