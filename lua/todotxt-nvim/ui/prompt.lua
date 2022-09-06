@@ -62,7 +62,7 @@ local function init(class, opts, extra_opts)
     -- function which returns a table of highlights
     highlight = on_change,
     -- this is the return value when closing the window(C-c)
-    cancelreturn = nil
+    cancelreturn = nil,
   }
 
   -- if the window closes, nil will be passed here and we shouldn't do anything
