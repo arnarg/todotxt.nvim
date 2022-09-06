@@ -72,7 +72,6 @@ local function init(class, opts, extra_opts)
       return
     end
     extra_opts.on_submit(input_val)
-
   end
 
   input(input_opts, on_confirm)
