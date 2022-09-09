@@ -1,7 +1,7 @@
 local config = require("todotxt-nvim.config")
 local TaskStore = require("todotxt-nvim.store.task_store")
 local Split = require("todotxt-nvim.ui.split")
-local Prompt = require("todotxt-nvim.ui.prompt")
+local open_prompt = require("todotxt-nvim.ui.prompt")
 
 local opts = {}
 
@@ -177,7 +177,7 @@ function todotxt.edit_task(id)
 
   local task = state.store:get_task_by_id(id)
 
-  local _ = Prompt(opts, {
+  open_prompt(opts, {
     title = "Edit task",
     initial_value = task:string(),
     on_submit = function(val)
@@ -191,7 +191,7 @@ function todotxt.capture()
     error("Setup has not been called.")
   end
 
-  local _ = Prompt(opts, {
+  open_prompt(opts, {
     title = "Add task",
     on_submit = function(val)
       state.store:add_task(val)

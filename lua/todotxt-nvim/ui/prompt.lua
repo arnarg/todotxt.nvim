@@ -1,10 +1,8 @@
 local hi_parser = require("todotxt-nvim.parser.highlight")
 local input = vim.ui.input
 
-local function init(class, opts, extra_opts)
-  local self = class
-
-  self._extra = {
+local function open_prompt(opts, extra_opts)
+  local extra = {
     prompt = opts.capture.prompt,
     alt_pri = opts.capture.alternative_priority,
     mark_id = 0,
@@ -14,29 +12,29 @@ local function init(class, opts, extra_opts)
 
   local function on_change(val)
     local hl_table = {}
-    local highlights = hi_parser.parse_task(val, self._extra.alt_pri)
+    local highlights = hi_parser.parse_task(val, extra.alt_pri)
     -- Add priority highlight
     if highlights.priority ~= nil then
-      local hi_group = self._extra.hls["pri_" .. string.lower(highlights.priority.priority)]
+      local hi_group = extra.hls["pri_" .. string.lower(highlights.priority.priority)]
       if hi_group ~= nil then
         table.insert(hl_table, { highlights.priority.left - 1, highlights.priority.right, hi_group })
       end
     end
     -- Add creation date highlight
     if highlights.creation_date ~= nil then
-      local hi_group = self._extra.hls.date
-      table.insert(hl_table, { highlights.priority.left - 1, highlights.priority.right, hi_group })
+      local hi_group = extra.hls.date
+      table.insert(hl_table, { highlights.creation_date.left - 1, highlights.creation_date.right, hi_group })
     end
     -- Add project highlights
     if highlights.projects ~= nil and #highlights.projects > 0 then
-      local hi_group = self._extra.hls.project
+      local hi_group = extra.hls.project
       for _, project in ipairs(highlights.projects) do
         table.insert(hl_table, { project.left - 1, project.right, hi_group })
       end
     end
     -- Add context highlights
     if highlights.contexts ~= nil and #highlights.contexts > 0 then
-      local hi_group = self._extra.hls.context
+      local hi_group = extra.hls.context
       for _, context in ipairs(highlights.contexts) do
         table.insert(hl_table, { context.left - 1, context.right, hi_group })
       end
@@ -44,7 +42,7 @@ local function init(class, opts, extra_opts)
     -- Check priority word
     if highlights.priority == nil and highlights.priority_word ~= nil then
       local priority = highlights.priority_word.priority
-      local hi_group = self._extra.hls["pri_" .. string.lower(priority)]
+      local hi_group = extra.hls["pri_" .. string.lower(priority)]
       -- Set highlight
       table.insert(hl_table, { highlights.priority_word.left - 1, highlights.priority_word.right, hi_group })
     end
@@ -75,13 +73,6 @@ local function init(class, opts, extra_opts)
   end
 
   input(input_opts, on_confirm)
-
-  return self
 end
 
-local Prompt = setmetatable({}, {
-  __call = init,
-  __name = "Prompt",
-})
-
-return Prompt
+return open_prompt
